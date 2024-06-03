@@ -19,9 +19,9 @@ progfilter_ABCD.sh  bash script for creating the HP71B.SRC files (or a version i
 
 Example PERE12.fth (calculation of ellipse perimeter)
 1. Change/Edit on PC in a terminal with >> emacs 71B2G.fth H71B1.fth PERE12.fth --eval "(view-files-in-windows)" <<  ( the attached emacs.txt should be changed into .emacs and placed into the user area).
-2. test/debug/use the file by starting it, in a terminal, with "gforth PERE12.fth" then "TEST" in the Gforth prompt.
+2. test/debug/use the file on the PC by starting it, in a terminal, with "gforth PERE12.fth" then "TEST" in the Gforth prompt.
 3. change the format with "sh progfilter_pere12.sh" (it calls 2x awk scripts).
-4. clean both created files HP71B1.SRC and PERE12.SRC files manually with a text editor in case the awk script had an issue.
+4. clean both created files HP71B1.SRC and PERE12.SRC files manually with a text editor in case the awk script had an issue (delete the test sequences or others).
 5. clean the format prior the transfer to HP71B with "unix2dos -v H71B1.SRC" and "unix2dos -v PERE12.SRC"
 6. change the format for uploading into EMU71 with wine "/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/alifhdr32/alifhdr.exe" H71B1.SRC H71B1.DAT /T
 7. start ILPER; in the DosLink "In" edit field select H71B1.DAT or later PERE12.DAT,  switch off then on the EMU71  ,  in the basic prompt of the HP71B,  COPY :DOSLINK TO H71B1  ,  CAT ALL (file there?)  ,  in the FORTH prompt  ,  “ H71B1” LOADF 
