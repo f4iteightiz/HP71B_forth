@@ -1,0 +1,109 @@
+# This program helps for filtering commented files on a PC. 
+# The cleaned-up files with this script will be later uploaded 
+# into the HP programming board
+# It will delete following type of comments:
+#  xxxx \ yyyy  -> changed to xxxx (deleted from \ on)
+#  D_xxx in a line -> line deleted
+#  G_xxx in a line -> changed to xxx (G_ deleted)
+#  line with blanks -> whole line deleted
+#  " ( .... )" identified -> replaced by "   "
+#  nothing in a line = only <cr> or <tab> -> whole line deleted
+#
+################################################################
+# More to be done (if time.. = priority B): 
+#
+# maximum 64 columns from : to ; (= words)
+#
+# if number 1.0E recognized, then put 1.0E0 to it for HP
+#
+# recognize numbers with more than 12 digits and shorten them
+#   3.14159265359E0 .. has 12 digits
+#
+# check if all words are recognized
+#   variables
+#   based on list of words of "board" Forth (not GFORTH only)
+################################################################
+#
+BEGIN {IGNORECASE = 1}
+
+# Remove text between " ( " and ")", inclusive  gawk manual page 88
+# see https://www.gnu.org/software/gawk/manual/gawk.pdf
+{
+
+	gsub(/\\ .*/,"",$0); 
+	gsub(/[ ]+/," ",$0);
+	gsub("\t"," ",$0);
+	gsub(/( *\\)/,"\\",$0); 
+	
+	while ((start = index($0, " ( ")) != 0) 
+	{
+		#out = substr($0, 1, start - 1)     # leading part of the string
+		out = substr($0, 1, start)          # improvement Oct 18 2023
+		rest = substr($0, start + 2) # ... ) ...
+		while ((end = index(rest, ")")) == 0) 
+		{ # is ) in trailing part?
+			# get more text
+			if (getline <= 0) 
+			{
+				print("unexpected EOF or error:", ERRNO) > "/dev/stderr"
+				exit
+			}
+		# build up the line using string concatenation
+		rest = rest $0
+		}
+	rest = substr(rest, end + 2) # remove comment
+	# build up the output line using string concatenation
+	$0 = out rest
+	
+	}
+	
+	# take line with D_ .. out
+	if ((index($0,"D_") ==0) && (index($0,"INCLUDED") ==0)) 
+	{
+	
+	# https://unix.stackexchange.com/questions/117384/how-can-i-remove-the-text-from-a-line-after-a-certain-character-with-awk
+ 	# delete the G_
+ 	gsub(/G_/,"",$0);
+ 	# delete the ALSO
+ 	gsub(/ALSO/,"",$0);
+ 	# delete the HP_ 
+ 	gsub(/HP_/,"",$0);
+ 	
+ 	 # delete the GH_ 
+ 	gsub(/GH_/,"",$0);
+ 	
+ 	# replace KEY? with ?TERMINAL 
+ 	gsub(/ KEY\? /," ?TERMINAL "); 
+ 	# replace S" by " = delete the S
+ 	gsub(/S"/,"\"",$0);
+	
+	if ($0 !~ /^[[:space:]]*$/ )
+	{
+		if  ( $0 != "\\")  
+		{ 
+		if  ( $1 != "\\")  
+		{
+		
+		# error recognition in case gforth words (which are not working on the old board) were forgotten in the script to filter
+		if (index($0,"F@") !=0) print("\n\n>>>>>>> take F@ out\n")
+		if (index($0,"F!") !=0) print("\n\n>>>>>>> take F! out\n")
+		
+		print $0 
+		}
+		}
+	}
+
+
+	#}
+	#}
+	}
+
+}
+
+# https://www.gnu.org/software/gawk/manual/gawk.pdf  page 315
+function unexpected_eof()
+{
+printf("extract: %s:%d: unexpected EOF or error\n",
+FILENAME, FNR) > "/dev/stderr"
+exit 1
+}

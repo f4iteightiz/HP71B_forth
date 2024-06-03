@@ -1,0 +1,27 @@
+#!/usr/bin/awk -f
+BEGIN { wrap=64 }
+# End the : block ;
+/^[^ ;]/ {
+ if (flag) print line
+ flag=0
+}
+# Start the : block ;
+$1 == ":" {
+  line=""
+  flag=1
+}
+flag {
+# Add a line, ensure a separating space
+  nline=(line ($0 ~ /^[ :]/ ? "" : " " ) $0)
+  if (length(nline) > wrap) {
+    print line
+    line=$0
+    # Delete leading space
+    sub(/^ */, "", line)
+  } else {
+    line=nline
+  }
+  next
+}
+{ print }
+END { if (flag) print line }
