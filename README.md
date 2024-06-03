@@ -4,7 +4,7 @@ Few programs written in forth for the HP71B.
 
 The target is to create a cross-development biotop HP71B on modern PC (especially due to editor convenience) with the help of Emacs, awk, and/or EMU71.
 
-First upload the FTHUTILA and FTHUTILF into HP71B. make sure the newest word TIME is uploaded into the HP71B for later use.
+First upload the FTHUTILA and FTHUTILF into HP71B (See HP-71 Software Developers Handbook, Section 21). make sure the newest word TIME (in between FTUTILA and F) is uploaded into the HP71B for later use. See the assembler file in attachment.
 
 The files can have different versions: one for cross-development on PC/Gforth, one adapted for PC/Gforth simulating the HP71B implementation and one for HP71B only (especially screen outputs, use of the BASICX commands, HP-IL ..).
 
