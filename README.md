@@ -18,4 +18,5 @@ H71Bx files, which target is to run on Gforth and/or HP71B, which contains diffe
 progfilter_ABCD.sh  bash script for creating the HP71B.SRC files (or a version in between; a manual last rework has to be done for verifying the real number endings are ok or the blanks are ok since the script is not fully cleaning a ready to use file
 
 Example PERE12.fth (calculation of ellipse perimeter)
-Edit on PC in a terminal with >> emacs 71B2G.fth H71B1.fth PERE12.fth --eval "(view-files-in-windows)" <<  ( the attached .emacs file must be in the user area)
+Edit on PC in a terminal with >> emacs 71B2G.fth H71B1.fth PERE12.fth --eval "(view-files-in-windows)" <<  ( the attached emacs.txt should be changed into .emacs and placed into the user area)
+change the format with "sh progfilter_pere12.sh"
