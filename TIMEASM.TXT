@@ -1,0 +1,65 @@
+
+       FORTH
+*                                TIMEASM
+*                        FORTH TIME: Primitive
+
+SAVEFP EQU #E717A           FORTH entry points:  Save FORTH pointers
+GETFP  EQU #E71A5                                Recover FORTH pointers
+STKLFT EQU #E7320                                Lift floating-point stack
+CMPT   EQU #125B2          System entry points:  Read time
+IDIV   EQU #0EC7B                                Full word integer divide
+HXDCW  EQU #0ECB4                                Hex to decimal
+FLOAT  EQU #1B322                                Integer to floating point
+CLRFRC EQU #0C6F4                                Clear fractional part
+DV2-12 EQU #0C4A8                                12-digit divide
+
+* TIME : Read system clock in seconds; return result to X
+       WORD 'TIME'
+       GOSBVL SAVEFP
+       GOSBVL STKLFT
+       P=     5              *** workaround for bug 1084
+       GOSBVL CMPT           C(W) = Time in hex 512ths of a second
+*
+ACLC24 A=C W                 Unsupported entry point. 12B79
+       C=0 W
+       P= 4
+       LCHEX 2A3             C = 2A30000
+       D=C W                 D = 2A30000 ( 24 hours in 512th's of a second )
+*
+       GOSBVL IDIV
+       GOSBVL HXDCW
+       A=C W
+       GOSBVL FLOAT
+       C=0 W
+       P= 12
+       LCHEX 512             C = 5.12
+       GOSBVL DV2-12         A,B = Time*100
+       GOSBVL CLRFRC         A,B = IP(Time*100)
+       GOSUB TRUNCC
+       C=C-1 X
+       C=C-1 X               C = TIME
+       SETHEX
+       D0=(5) #2FBD0         X-Register
+       DAT0=C W              X = TIME
+       GOSBVL GETFP
+       RTNCC
+
+TRUNCC P= 0                  unsupported system utility at 12B4A
+       LCHEX 00499           rounds 15-digit A,B to 12-digit C
+       ?A<=C A
+       GOYES TRUN20
+       C=-C A
+       ?A>=C A
+       GOYES TRUN20
+       C=0 W
+       A=A+A A
+       GOC TRUN10
+       LCHEX F00
+       C=A S
+TRUN10 RTNCC
+TRUN20 C=A W
+       C=B M
+       RTNCC
+
+       END
+
