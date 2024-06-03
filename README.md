@@ -25,4 +25,7 @@ Example PERE12.fth (calculation of ellipse perimeter)
 5. clean the format prior the transfer to HP71B with "unix2dos -v H71B1.SRC" and "unix2dos -v PERE12.SRC"
 6. change the format for uploading into EMU71, in a terminal with the command wine "/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/alifhdr32/alifhdr.exe" H71B1.SRC H71B1.DAT /T
 7. start ILPER; in the DosLink "In" edit field select H71B1.DAT or later PERE12.DAT,  switch off then on the EMU71  ,  in the basic prompt of the HP71B,  COPY :DOSLINK TO H71B1  ,  CAT ALL (file there?)  ,  in the FORTH prompt  ,  “ H71B1” LOADF 
-8. test it in the forth prompt with  3.0 11.0 PERE12 Endline give 47.652857
+8. test it in the forth prompt with  3.0 11.0 PERE12 Endline give the output below
+Param B: 3 
+Param A: 11 
+ELLIPSE PERIM = 47.6528567685  OK { 0 }
