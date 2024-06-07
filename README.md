@@ -1,6 +1,7 @@
 # HP71B_forth
 
-Few programs written in forth for the HP71B. 
+Few programs written in forth for the HP71B. Use at your own risk.
+The files H71B1 and H71B2G are subject to further development: their maturity was enough to start 3 programs escribed below.
 
 The target is to create a cross-development biotop HP71B on modern PC (especially due to editor convenience) with the help of Emacs, awk, and/or EMU71.
 
