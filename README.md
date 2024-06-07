@@ -63,5 +63,4 @@ Example 3: SNAKE  ( 2D game with a snake eating an apple then becoming longer )
 8. now in the forth prompt
 >0 PRIMARY !
 >D-D              ( screen will be the output )
->PAGE             ( clean the screen; not necessary on EMU71 )
 >SSNAKE           ( start ; see the result in the SnakeHP file )
