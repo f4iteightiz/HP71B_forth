@@ -293,12 +293,8 @@ VARIABLE DIRECTION                       ( current direction to be used as a tic
 ( -- )
 : UPDATE-APPLE
     ( gforth )
-    APPLE_OLD
-    APPLE
-    POINT=
-    NOT
-    IF APPLE_OLD 2@ D_AT-XY 35 EMIT   ( get the old X Y coordinate of the apple and draw # at it  )
-    ELSE THEN
+\    APPLE_OLD APPLE POINT= NOT IF APPLE_OLD 2@ D_AT-XY 35 EMIT   ( get the old X Y coordinate of the apple and draw # at it  ) ELSE THEN
+ APPLE_OLD 2@ D_AT-XY 35 EMIT
     ( )
     ( uncomment below and comment above when you go to HP71B )
     ( HP71B )
