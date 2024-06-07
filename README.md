@@ -49,7 +49,6 @@ Example 2 GLOCK (show a terminal clock)
 9. now in the forth prompt
 >0 PRIMARY !
 >D-D              ( screen will be the output )
->PAGE             ( clean the screen; not necessary on EMU71;  in case not in the CLOCK tested script on HW )
 >STARTCLO         ( start the CLOCK; see the result in the TerminalEmulatorHP file )
 
 Example 3: SNAKE  ( 2D game with a snake eating an apple then becoming longer )
