@@ -179,7 +179,7 @@ CREATE PAD 80 C, 0 C, 80 ALLOT
 \ all starts with D_xxx in order to be deleted later by the awk script
 \
 \ **************************************************************
-: D_WARN CR ." A line which contain D_ will be deleted with the awk filtering" CR ;
+: D_WARN ; ( CR ." A line which contain D_ will be deleted with the awk filtering" CR )
 \ --------------------------------------------------------------
 \ clear the gforth float stack 
 : FCLEARSTACK  ( r1 r2 .. rn -- )    
@@ -727,12 +727,14 @@ D_RPNS
 \ --------------------------------------------------------------
 \
 \
+\                work this out
 \ ?COMP --------------------------------------------------------
 \ COMPILE. Issue a *FTH ERR: compile only* message if not in
 \  compile mode.
-\ In the INCLUDED "compile" file with the included file
+\ In the INCLUDED file, see word "COMPILE" here, 
 \ You will find something similar like below
 \ : ?COMP    ( -- ) STATE @ 0= ABORT" Compile only" ;
+: ?COMP CR CR ." not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -872,18 +874,18 @@ D_RPNS
 \   exceeds this length.
 \  example " A$" BASIC$
 \
-: BASICF  CR CR ." not implemented in gforth" CR ;
+: BASICF  CR CR ." BASICF not implemented in gforth" CR ;
 \  passes a string containing a numeric expression to the BASIC system for evaluation.
 \  It returns the value of the numeric expression to the X-register in the FORTH floating-point stack.
 \  example " TIME" BASICF
 \
-: BASICI  CR CR ." not implemented in gforth" CR ;
+: BASICI  CR CR ." BASICI not implemented in gforth" CR ;
 \  passes a string containing a numeric expression to the BASIC system for evaluation.
 \  It returns the value of the numeric expression to the FORTH data stack.
 \  example " A(1)" BASICI
 \  " STATUS" BASICI  returns to the integer data stack a value describing the loop status.
 \
-: BASICX CR CR ." not implemented in gforth" CR ;
+: BASICX CR CR ." BASICX not implemented in gforth" CR ;
 \  passes a string containing BASIC statements to the BASIC system for parsing and execution.
 \  It returns no value to the FORTH environment. E: A ~:; I C ::< can alter the value of BASIC variables.
 \  If the string begins with a line number, it will be added to the current BASIC edit file.
@@ -1082,7 +1084,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Accumulate the string of digits beginning at addr1 + 2 into the double number d1 and return the result d2 and the address addr2 of the next non-digit character.
 \ For each character that is a valid digit in BASE, CONVERT converts the digit into a number, multiplies the current double number (initially d1 ) by
 \ BASE and adds the converted digit to the current double number. When CONVERT encounters a non-digit character, it returns the current double number and the non-digit character's address.
-: CONVERT COUNT >NUMBER DROP 2- ;
+: CONVERT COUNT >NUMBER DROP 2- CR CR ." CONVERT not tested in gforth" CR ;
 \
 \ further explanation gforth..
 \
@@ -1152,7 +1154,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ ( str n -- addr ) or ( str n -- false )
 \ https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Blocks.html
 \ https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/General-files.html#General-files
-: CREATEF  ROT OPEN-BLOCKS GET-BLOCK-FID  ;
+: CREATEF  ROT OPEN-BLOCKS GET-BLOCK-FID  CR CR ." not tested" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1254,7 +1256,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ COMPILE, IMMEDIATE. Compile d into the word being defined,
 \ such that d will be returned when the word is executed.
 \ ( d -- )
-: DLITERAL CREATE 2, 2, DOES> 2@ 2@  ;
+: DLITERAL CREATE 2, 2, DOES> 2@ 2@  CR CR ." not tested" CR ;
 \ .. use ?
 \    within a word definition (like LITERAL)
 \ : WORDX .. [ n1 n2 ] DLITERAL .. ; ?
@@ -1350,7 +1352,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Select engineering display mode with n + 1 significant digits
 \  displayed, for 0 <= n <= 11.
 \ (n --)
-: ENG DUP EDM ! SET-PRECISION  0 SDM ! 0 FDM ! ;
+: ENG DUP EDM ! SET-PRECISION  0 SDM ! 0 FDM ! CR CR ." ENG not tested" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1362,7 +1364,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ The HP-IL module puts the bytes received into a temporary location (the HP-71 math stack).
 \ The FORTH system then moves the bytes into an address specified by the user when executing ENTER.
 \ The byte count and the address of the data are always returned to the user.
-: ENTER  CR CR ." not implemented in gforth" CR ;        
+: ENTER  CR CR ." ENTER not implemented in gforth" CR ;        
 \ --------------------------------------------------------------
 \
 \
@@ -1372,7 +1374,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Return a true flag if there are no more records in the active file; otherwise, return a false flag.
 \ EOF examines the record length of the next record in the file specified by the FIB# in SCRFIB. It assumes
 \ that the current pointer into the file is pointing at the next record length and that the file is a text file.
-: EOF  CR CR ." not implemented in gforth" CR ;
+: EOF  CR CR ." EOF not implemented in gforth" CR ;
 \ returns a true flag if the end of the active file has been reached, a false flag if not.
 \ look at gforth file-eof? ( wfileid – flag ) gforth-0.6 “file-eof-query” or others
 \ Flag is true if the end-of-file indicator for wfileid is set. 
@@ -1392,7 +1394,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ flag if such a buffer doesn't exist, if the resulting size would exceed 2K bytes, if there is insufficient
 \ memory, or if n1 is negative. n1 must not exceed FFF.
 \ ( n1 n2 -- flag ) 
-: EXPBF CR CR ." not implemented in gforth" CR ;
+: EXPBF CR CR ." EXPBF not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1412,7 +1414,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
                 \               (including history and word completion) in accept. 
     SPAN !
     R> BASE !   \ Restore the original number base
-;
+CR CR ." EXPECT96 not tested" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1538,7 +1540,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ return the address of the variable FENCE which contains
 \ the address below which the dictionnary is protected from FORGET
 \ .. not a concept in gforth
-:  FENCE  CR CR ." not implemented in gforth" CR ;
+:  FENCE  CR CR ." FENCE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1573,7 +1575,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ addr1 If the word is found, FIND returns the word's CFA (= addr2) and either n = 1 (if the word is
 \ immediate) or n = -1 (if the word isn't immediate). If the word isn't found, FIND returns addr2 = addr1
 \ and n = O.
-: FIND  CR CR ." not implemented in gforth.. similar there" CR ;
+: FIND  CR CR ." FIND not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1581,7 +1583,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ ( n -- addr) or (n -- false)
 \ Return the start-of-data address in the general-purpose buffer whose ID# is n, or return a false flag if
 \ such a buffer doesn't exist.
-: FINDBF CR CR ." not implemented in gforth" CR ;
+: FINDBF CR CR ." FINDBF not implemented in gforth" CR ;
 \ finds the current address of a specified general purpose buffer.
 \ --------------------------------------------------------------
 \
@@ -1591,7 +1593,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Search main RAM for the file whose name is specified by str, and return either the address
 \ of the beginning of the file header (if successful) or a false flag (if not).
 \ If the specified string exceeds eight characters, FINDF considers only the first eight characters.
-: FINDF CR CR ." not implemented in gforth" CR ;
+: FINDF CR CR ." FINDF not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1599,7 +1601,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ is a user variable containing the address of the first mass memory buffer in memory.
 \ Return the address of the variable FIRST, which contains the address of the first (lowest addressed) mass
 \  storage buffer in the FORTHRAM file.
-: FIRST CR CR ." not implemented in gforth" CR ;
+: FIRST CR CR ." FIRST not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1608,7 +1610,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ set the display format.
 \ https://gforth.org/manual/Floating_002dpoint-output.html
 : FIX ( n - )
-    DUP FDM ! SET-PRECISION 0 SDM ! 0 EDM ! ;
+    DUP FDM ! SET-PRECISION 0 SDM ! 0 EDM ! CR CR ." FIX not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1617,8 +1619,8 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ like in gforth
 \ IMMEDIATE, COMPILE. Compile the value x (the contents of the X-register) into the dictionary. When
 \ the colon definition is later executed, x will be placed in the X-register, lifting the floating-point stack.
-\ : FLITERAL  FLiteral
-\    CR CR ." not full implemented for gforth" CR ;
+: FLITERAL  FLiteral
+    CR CR ." not tested for gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1631,7 +1633,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ FORGET -------------------------------------------------------
 \ nothing in gforth.. workaround would be use of MARKER. use tbd
 \ https://gforth.org/manual/Forgetting-words.html#index-marker_0028--_0022_003cspaces_003e-name_0022-_002d_002d--_0029-core_002dext
-: FORGET  CR CR ." not implemented in gforth" CR ;
+: FORGET  CR CR ." FORGET not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1676,11 +1678,10 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ https://gforth.org/manual/Floating_002dpoint-output.html
 \ converts the number in the X-register to a string.
 ( X -- str )
-: FSTR$ 12 5 0 F>STR-RDP ;
+: FSTR$ 12 5 0 F>STR-RDP CR CR ." FSTR$ not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
-\                  ON HP71B to be tested
 \ FTOI ---------------------------------------------------------
 \
 \ ( r – n )  \ floating-ext “f-to-s”  gforth like
@@ -1688,7 +1689,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ overflow error occurs. FTOI takes the absolute value of x, rounds it to the nearest integer, and converts it
 \ to a five-nibble value. If x was positive, FTOI returns this result; if x was negative, FTOI returns the
 \ twos complement of this result.
-: FTOI   F>S ;
+: FTOI F>S ;
 \ --------------------------------------------------------------
 \
 \
@@ -1702,7 +1703,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ ( n -- flag )
 \ Enlarge the user dictionary by n nibbles and return a true flag; or if there is insufficient memory, return a
 \ false flag (without enlarging the dictionary).
-: GROW  CR CR ." not implemented in gforth" CR ;
+: GROW  CR CR ." GROW not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1710,7 +1711,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \
 \ ( un - )
 \ Display un in base 16 as an unsigned number with one trailing blank.
-: H.  CR CR ." not implemented in gforth" CR ;
+: H.  CR CR ." H. not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1741,7 +1742,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ from the TIB (if BLK contains 0) or from the mass storage buffer containing the nth line of the active file
 \ (if BLKcontains n.)
 \ >>>> INTERPRET
-: INTERPRET  CR CR ." not implemented in gforth" CR ;
+: INTERPRET  CR CR ." INTERPRET not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1771,7 +1772,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 ( n -- r )  
 \    X          Y      Z      T      L 
 \    float(n)   X      Y      Z      (L?)
-: ITOF D_?SINIT S>F Z F@ T F! Y F@ Z F! X F@ Y F! FDUP X F! D_RPNREC ;
+: ITOF D_?SINIT S>F Z F@ T F! Y F@ Z F! X F@ Y F! FDUP X F! D_RPNREC CR CR ." ITOF to be tested in gforth" CR ;
 \ avoid to have fstack > 4 therefore D_RPNS error messages
 \ --------------------------------------------------------------
 \
@@ -1795,7 +1796,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Delete the general-purpose buffer whose ID# is n, and return a true flag; or return a false flag if no such
 \ buffer exists.
 \ KILLBF       deletes a specified general purpose buffer.
-: KILLBF  CR CR ." not implemented in gforth" CR ;
+: KILLBF  CR CR ." KILLBF not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1807,7 +1808,6 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ --------------------------------------------------------------
 \
 \
-\                                 test this
 \ LASTX --------------------------------------------------------
 \
 \ Lift the floating-point stack and copy the contents of the LAST X register into the X-register.
@@ -1821,7 +1821,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ ( -- addr )
 \ Return the NFA of the most recent word in the CURRENT vocabulary.
 \ >>>> LATEST
-: LATEST  CR CR ." not implemented in gforth" CR ;
+: LATEST  CR CR ." LATEST not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1829,7 +1829,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ COMPILE, IMMEDIATE. Skip to the word after the next L00P or +LOOP. LEAVE terminates the loop
 \ and discards the control parameters. Used only within a DO ... LOOP or +LOOP construct.
 \ >>>> LEAVE
-: LEAVE  CR CR ." not implemented in gforth" CR ;
+: LEAVE  CR CR ." LEAVE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1861,7 +1861,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ is a user variable containing the address of the first byte beyond the mass-memory-buffer  area.
 \ Return the address of the variable LIMIT, which contains the first address beyond the mass-storage-buffer area.
 \ >>>> LIMIT
-: LIMIT CR CR ." not implemented in gforth" CR ;
+: LIMIT CR CR ." LIMIT not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1871,7 +1871,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Return the address of the variable LINE#, which contains the number of the line being loaded from the
 \   active file (specified by SCRFIB).
 \ >>>> LINE#   
-: LINE#  CR CR ." not implemented in gforth" CR ;
+: LINE#  CR CR ." LINE# not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1880,7 +1880,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Return str specifying the contents of the string variable LISTING, which identifies the file or device to
 \ which the assembler will direct its output. LISTING can contain up to 20 characters.
 \ >>>> LISTING
-: LISTING  CR CR ." not implemented in gforth" CR ;
+: LISTING  CR CR ." LISTING not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1902,7 +1902,6 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ --------------------------------------------------------------
 \
 \
-\                            test this
 \ LN -----------------------------------------------------------
 \
 ( r1 -- ln"r1" )   
@@ -1918,11 +1917,10 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ type, already opened, etc.), LOADF will give the error message FTH ERR: filename cannot loadd.
 \ ( str -- )
 \ >>>> LOADF
-: LOADF  CR CR ." not implemented in gforth" CR ;
+: LOADF  CR CR ." LOADF not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
-\                             test this
 \ LGT ----------------------------------------------------------
 \
 ( r1 -- log"r1" )  
@@ -1959,7 +1957,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Divide the double number d by the single number n1, and return the single-number remainder n2 and the
 \ single-number quotient n3. All numbers are signed.
 \ ( d n1 -- n2 n3 )
-: M/ FM/MOD ;
+: M/ FM/MOD CR CR ." M/ not tested in gforth" CR  ;
 \ --------------------------------------------------------------
 \
 \
@@ -1968,7 +1966,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Divide the double number ud1 by the single number un1, and return the single-number remainder un2 and
 \ the double-number quotient ud2. All numbers are unsigned.
 \ ( ud1 un1 -- un2 ud2 )
-: M/MOD UD/MOD ;
+: M/MOD UD/MOD CR CR ." M/MOD not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1980,7 +1978,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ ( n -- addr ID# true )
 \ ( n -- false )
 \ >>>> MAKEBF
-: MAKEBF  CR CR ." not implemented in gforth" CR ;
+: MAKEBF  CR CR ." MAKEBF not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2069,7 +2067,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
   C@       \ Read the byte at the address  
   0xF AND  \ Mask out the four high-order nibbles
   R> BASE !   \ Restore the original number base
-;
+CR CR ." N@ not tested widely in gforth" CR ;
 \ test on emulator 71B gives..n@
 \ " ABCDEFGH" ret OK { 2 }
 \ . ret 8  (length 8)
@@ -2094,12 +2092,12 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
     DECIMAL     \ Set the number base to decimal
     15 AND SWAP C!
     R> BASE !   \ Restore the original number base
-;
+CR CR ." N! not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
-\                           test this
 \ NALLOT -------------------------------------------------------
+\ tested 2024 June 7 in SNAKE
 \ Add n nibbles to the parameter field of the most recently defined word
 \ (regardless of the CURRENT and CONTEXT vocabularies).
 \ ( n -- )
@@ -2121,7 +2119,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ Fill memory from addr through addr + (un - 1) with un copies
 \ of the low-order nibble in n. NFILL has no effect if un = O.
 \ ( addr un n -- )
-: NFILL  FILL ;
+: NFILL  FILL CR CR ." NFILL not tested in gforth" CR ;
 \ .. use ?
 \ --------------------------------------------------------------
 \
@@ -2132,7 +2130,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ NMOVE has no effect if un = o.
 \ ( addr1 addr2 un -- )
 \ >>>> NMOVE
-: NMOVE  CR CR ." not implemented in gforth" CR ;
+: NMOVE  CR CR ." NMOVE not implemented in gforth" CR ;
 \ .. use ?
 \ --------------------------------------------------------------
 \
@@ -2143,18 +2141,17 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ NMOVE> has no effect if un = o.
 \ ( addr1 addr2 un -- )
 \ >>>> NMOVE>
-: NMOVE>  CR CR ." not implemented in gforth" CR ;
+: NMOVE>  CR CR ." NMOVE> not implemented in gforth" CR ;
 \ .. use ?
 \ --------------------------------------------------------------
 \
 \ 
-\                       test this
 \ NOT ----------------------------------------------------------
+\ tested 2024 June 7 on gforth and HP71B
 \ Return the ones complement (true Boolean NOT) of n1.
 \ ( n1 -- n2 )
 ( b -- b )
 : NOT  TRUE XOR ;
-\ .. use ?
 \ --------------------------------------------------------------
 \
 \
@@ -2163,9 +2160,8 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
 \ create a temporary string (specified by str) in the pad,
 \ with maximum length 80 and current length 0
 \ ( -- str)
-: NULL$ S" "
-\    D_PADSET
-;
+: NULL$ S" " D_PADSET
+CR CR ." NULL$ not tested in gforth" CR ;
 \
 \ use ..
 \ ENU71
@@ -2241,7 +2237,7 @@ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED
       2NIP
     THEN   
 R> BASE !   \ Restore the original number base
-;
+CR CR ." NUMBER to be worked out in gforth" CR ;
 \ use..
 \
 \ HP71B
@@ -2284,7 +2280,7 @@ R> BASE !   \ Restore the original number base
 \ when the FORTH system is ready for input; otherwise, the message is suppressed.
 \ ( -- addr )
 \ >>>> OKFLG
-: OKFLG  CR CR ." not implemented in gforth" CR ;
+: OKFLG  CR CR ." OKFLG not implemented in gforth" CR ;
 \ .. use ?
 \ 1 OKFLG !  deactivate the OK { n } message and the screen
 \ dont change after a CR
@@ -2301,7 +2297,7 @@ R> BASE !   \ Restore the original number base
 \ The stacks are not reset. The BASIC keywords F0RTH and FORTHX set the value of ONERR to zero.
 \ ( -- addr )
 \ >>>> ONERR         The user variable ONERR contains the CFA of a word to execute when an error occurs
-: ONERR  CR CR ." not implemented in gforth" CR ;
+: ONERR  CR CR ." ONERR not implemented in gforth" CR ;
 \               Page 71 of the manual show the error nb and messages
 \ .. use ?
 \ --------------------------------------------------------------
@@ -2315,7 +2311,7 @@ R> BASE !   \ Restore the original number base
 \ ( str -- f )
 \ ( str -- str f )
 \ >>>> OPENF
-: OPENF  CR CR ." not implemented in gforth" CR ;
+: OPENF  CR CR ." OPENF not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2429,7 +2425,7 @@ R> BASE !   \ Restore the original number base
 \ of printed lines per page for the assembler listing.
 \ The default value is 56; the minimum value is 8.
 \ ( -- addr )
-: PAGESIZE  CR CR ." not implemented in gforth" CR ;
+: PAGESIZE  CR CR ." PAGESIZE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2498,7 +2494,7 @@ R> BASE !   \ Restore the original number base
 \ is a user variable containing the address of the mass memory buffer last used.
 \ Return the address of the variable PREY, which contains the
 \ address of the most recently referenced mass storage buffer.
-: PREV  CR CR ." not implemented in gforth" CR ;
+: PREV  CR CR ." PREV not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2561,6 +2557,9 @@ VARIABLE PRIMARY
 \ COMPILE. Return a copy of the number on the top of the return stack.
 \ ( -- n )
 \ gforth   r@ ( – w ; R: w – w  ) core “r-fetch”
+: R@
+    R@
+    CR CR ." R@ to be tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2571,7 +2570,7 @@ VARIABLE PRIMARY
 : RADIANS  0 TO DEG -1 TO RAD  ; 
 \ --------------------------------------------------------------
 \
-\                    test this more
+\
 \ RCL ----------------------------------------------------------
 \
 \ tested with PERE12
@@ -2596,13 +2595,18 @@ VARIABLE PRIMARY
 \    Y      Z      T      X      L
 : RDN
 \    ." RDN In  " D_RPNS
-    D_?SINIT    X F@ TB F!    Y F@ X F!    Z F@ Y F!    T F@ Z F!    TB F@ T F!  D_RPNREC
+    D_?SINIT
+    X F@ TB F!
+    Y F@ X F!
+    Z F@ Y F!
+    T F@ Z F!
+    TB F@ T F!
+    D_RPNREC
 \    ." RDN Out  " D_RPNS
 ;
 \ --------------------------------------------------------------
 \
 \
-\                             test this
 \ RIGHT$ -------------------------------------------------------
 \ creates a temporary substring of specified length from the last part of a string.
 \ Create a temporary string (specified by str2) consisting of the last (rightmost) n characters in the string
@@ -2680,6 +2684,8 @@ VARIABLE PRIMARY
 \ RP@
 \ gforth   rp@ ( – a-addr ) gforth-0.2 “rp-fetch”
 \ .. use ?
+: RP@ RP@
+    CR CR ." RP@ to be tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2794,7 +2800,8 @@ VARIABLE PRIMARY
 \ or a false flag if not. S< first compares the ASCII values of the first characters; if they are equal, it then compares the
 \ second characters, and so on. ABC is defined to be less than ABCD.
 \ ( str1 str2 -- flag )
-: S< STR< ;
+: S< STR<
+    CR CR ." S< to be tested in gforth" CR ;
 \ gforth  str< ( c-addr1 u1 c-addr2 u2 – f  ) gforth-0.6 “str-less-than”
 \ .. use ?
 \ --------------------------------------------------------------
@@ -2933,7 +2940,8 @@ VARIABLE PRIMARY
 \ Select scientific display mode with n + 1 significant digits displayed, for 0 <= n <= 11.
 \ (n --)
 \ see gforth https://gforth.org/manual/Floating_002dpoint-output.html
-: SCI  DUP TO SDM SET-PRECISION  0 TO EDM  0 TO FDM    ;
+: SCI  DUP TO SDM SET-PRECISION  0 TO EDM  0 TO FDM
+    CR CR ." SCI to be worked out in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2942,7 +2950,7 @@ VARIABLE PRIMARY
 \ the currently active file (or 0 if no file is being loaded).
 \ user variable containing the either the FIB# of the active file being interpreted by LOADF or else o.
 \ >>>> SCRFIB
-: SCRFIB  CR CR ." not implemented in gforth" CR ;
+: SCRFIB  CR CR ." SCRFIB not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2963,7 +2971,7 @@ VARIABLE PRIMARY
 \ true flag; or return a false flag if there are fewer than n free nibbles in the dictionary.
 \ ( n -- flag )
 \ >>>> SHRINK
-: SCHRINK  CR CR ." not implemented in gforth .. HP71B specific?" CR ;
+: SCHRINK  CR CR ." SCHRINK not implemented in gforth .. HP71B specific?" CR ;
 \ use EMU71
 \ > CAT ALL
 \  NAME   S TYPE   LEN    DATE    TIME PORT
@@ -2990,13 +2998,11 @@ VARIABLE PRIMARY
 \ --------------------------------------------------------------
 \
 \
-\                       test this
 \ SIGN ---------------------------------------------------------
 \ Insert the ASCII minus sign - into the pictured numeric output string if n is negative.
 \ Used between <# and #>.
-\ >>>> SIGN seems to be the same than gforth
+\ SIGN same than gforth
 \ ( n -- )
-\ .. use ?
 \ --------------------------------------------------------------
 \
 \ 
@@ -3015,6 +3021,7 @@ VARIABLE PRIMARY
 \ ( str addr -- )
 \ Store at addr and above (greater addresses) the characters in the string specified by str.
 \ >>>> SMOVE     stores a string at a specified address.
+: SMOVE CR CR ." SMOVE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3022,7 +3029,7 @@ VARIABLE PRIMARY
 \ ( -- )
 \ Toggle the smudge bit in the latest definition's name field.
 \ >>>> SMUDGE
-: SMUDGE  CR CR ." not implemented in gforth" CR ;
+: SMUDGE  CR CR ." SMUDGE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3048,6 +3055,7 @@ VARIABLE PRIMARY
 \ = start of TIB
 \ which will be changed when GROW or SCHRINK is executed
 \ see Forth manual page 30
+: SP0 CR CR ." SP0 not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3056,6 +3064,7 @@ VARIABLE PRIMARY
 \
 \ Return addr, the address of the top of the data stack before SP@ was executed.
 \ >>>> SP@       see gforth too ?
+: SP@ SP@ CR CR ." to be tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3079,7 +3088,7 @@ VARIABLE PRIMARY
 \ see variable declaration above
 \ address is 2FB5C of SPAN in HP71B. SPAN @ return the Number of characters read by E X P E C T 9 6.
 \ >>>> SPAN
-: SPAN CR CR ." not implemented in gforth" CR ;
+: SPAN CR CR ." SPAN not implemented in gforth" CR ;
 \ .. use ?
 \ --------------------------------------------------------------
 \
@@ -3100,6 +3109,7 @@ VARIABLE PRIMARY
 \ ( -- addr )
 \ Return the address of the variable STATE, which contains a non-zero value if compilation is occurring (or zero if not).
 \ >>>> STATE
+: STATE CR CR ." STATE to be tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3107,7 +3117,7 @@ VARIABLE PRIMARY
 \ 
 \ Select the BASIC standard display format.
 \ >>> STD
-: STD  CR CR ." not implemented in gforth" CR ;
+: STD  CR CR ." STD not implemented in gforth" CR ;
 \ ( -- )
 \ --------------------------------------------------------------
 \
@@ -3340,7 +3350,7 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 \
 \
 \ SWAP ---------------------------------------------------------
-\
+\ swap ( w1 w2 – w2 w1 ) core “swap”
 \ in GFORTH, too
 \ --------------------------------------------------------------
 \
@@ -3350,7 +3360,7 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 \ Return a true flag if the string specified by str is a valid HP-71 file name, or return a false flag if not.
 \ If the specified string exceeds eight characters, SYNTAXF checks only the first eight characters.
 \ >>>> SYNTAXF
-: SYNTAXF  CR CR ." not implemented in gforth" CR ;
+: SYNTAXF  CR CR ." SYNTAXF not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3374,7 +3384,7 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 \ TIB ----------------------------------------------------------
 \ ( -- addr )
 \ >>>> TIB
-: TIB  CR CR ." not implemented in gforth" CR ;
+: TIB  CR CR ." TIB not implemented in gforth" CR ;
 \ Return the address of the terminal input buffer. The terminal input buffer can hold up to 96 characters.
 \ : TIB 1 BUFFER ;
 \ could be for HP71B.. (GROW or SHRINK will change the value)
@@ -3386,7 +3396,7 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 \ Replace n2 (the contents at addr) with the bit-by-bit logical value of (n1 XOR n2).
 \ ( addr n1 -- )
 \ >>>> TOGGLE
-: TOGGLE  CR CR ." not implemented in gforth" CR ;
+: TOGGLE  CR CR ." TOGGLE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3397,7 +3407,7 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 \ > If n=-1, addr1 is the address of the last character, and addr2 is the address of the length byte.
 \ > If n doesn't equal 1 or -1, addr1=addr2
 \ >>>> TRAVERSE
-: TRAVERSE  CR CR ." not implemented in gforth" CR ;
+: TRAVERSE  CR CR ." TRAVERSE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3459,9 +3469,6 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 \ --------------------------------------------------------------
 \
 \
-\      gforth behave a bit differently during transform of the double number.
-\      still check this if this is coming from the 32 (gforth) or 20 bits (71B).
-\      test on the hardware
 \ VAL ----------------------------------------------------------
 \
 \ in HP71B  ( addr u -- d )  or  ( addr u -- )    see page 20 of the forth manual
@@ -3497,7 +3504,7 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
                 \ converts string addr u into d, flag indicates success 
     0=          \ no success
     IF
-	CR ." Issue reading the integer number in the string. Now try float" CR
+	\ CR ." Issue reading the integer number in the string. Now try float" CR
 	2DROP   ( addr u )
 	>FLOAT 
 	\ >float ( c-addr u – f:... flag ) floating “to-float”
@@ -3513,12 +3520,12 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 	IF
 	    CR ." Issue reading the float number in the string. exit" EXIT
 	ELSE
-	    CR ." Changed to float" CR
+	    \ CR ." Changed to float" CR
 	    D_SSET    \ update the 4 level stack with number in X
 	THEN
     ELSE
 	2NIP
-	CR ." Changed to integer" CR
+	\ CR ." Changed to integer" CR
     THEN   
 R> BASE !   \ Restore the original number base
 ;
@@ -3569,7 +3576,7 @@ R> BASE !   \ Restore the original number base
 \ into the FORTH user variable VARID.
 \ (The assembler uses this variable to save a buffer.)
 \ >>>> VARID
-: VARID  CR CR ." not implemented in gforth" CR ;
+: VARID  CR CR ." VARID not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3611,7 +3618,7 @@ VARIABLE WARN
 \ OK { 1 } 
 \ .
 \ 31  OK { 0 } 
-: WIDTH  CR CR ." not implemented in gforth" CR ;
+: WIDTH  CR CR ." WIDTH not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3622,6 +3629,7 @@ VARIABLE WARN
 \ input stream is exhausted, and store the characters in a counted string at addr. WORD ignores leading
 \ delimiters. If the input stream is exhausted as WORD is called, a zero-length string results.
 \ >>>> : WORD  REFILL  ;
+: WORD CR CR ." WORD not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3832,6 +3840,7 @@ VARIABLE WARN
 DECIMAL
 \ : N-A 10 - DUP 0< IF 58 + ELSE 65 + THEN EMIT ;
 \ >>>> N-A
+: N-A CR CR ." N-A not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3858,7 +3867,9 @@ DECIMAL
 \ Display n nibbles, starting at addr, as ASCII hex characters.
 \ Leave the next address (addr+n) on the stack.
 \ ( addr n -- addr+n )
-: DUMP+ 2DUP + ROT ROT DUMP ; ( Do DUMP; leave next addr on stack )
+: DUMP+ 2DUP + ROT ROT DUMP
+CR ." DUMP+ not tested in gforth" CR
+; ( Do DUMP; leave next addr on stack )
 \ --------------------------------------------------------------
 \
 \
@@ -3867,6 +3878,7 @@ DECIMAL
 ( SHOW: disp contents of n consecutive memory cells.  { addr n -> } )
 \ : SHOW 1+ 1 DO DUP H. DUP @ 5 SPACES H. PAUSE CR 5+ LOOP ;
 \ >>>> SHOW
+: SHOW CR CR ." SHOW not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3875,6 +3887,7 @@ DECIMAL
 ( put current base in X and display)
 \ : BASE? BASE @ DUP DECIMAL . BASE ! ;
 \ : BASE? BASE @ DUP DECIMAL . DUP ITOF X F! ;
+: BASE? CR CR ." BASE? not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3892,6 +3905,11 @@ DECIMAL
 \ : D-* " DISPLAYIS*" BASICX ;
 \ : D-D " DISPLAYISDISPLAY" BASICX ;
 \ : D-R " DISPLAYISRS232"BASICX ;
+: D- CR CR ." D- not implemented in gforth" CR ;
+: D-P CR CR ." D-P not implemented in gforth" CR ;
+: D-* CR CR ." D-* not implemented in gforth" CR ;
+: D-D CR CR ." D-D not implemented in gforth" CR ;
+: D-R CR CR ." D-R not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3901,6 +3919,7 @@ DECIMAL
 ( ROOM?:  Display number of nibbles available in dictionary )
 \ : ROOM? SP0 @ HERE - 458 - . ;
 \ >>>> ROOM? ---------------------------------------------------
+: ROOM CR CR ." ROOM not implemented in gforth" CR ;
 \
 \
 \ S. -----------------------------------------------------------
@@ -3922,7 +3941,8 @@ DECIMAL
 ( ADDR-    get the addr of the namefield of the previous word.)
 (          NFAddr1 -> NFAddr2 )
 HEX
-: ADDR- 5- @ ;
+\ : ADDR- 5- @ ;
+: ADDR- CR CR ." ADDR- not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3931,18 +3951,21 @@ HEX
 ( NFA:  GIVEN CFA, GET NFA.  [ CFA -> NFA ] )
 \ : NFA 2- -1 TRAVERSE ;
 \ >>>> NFA
+: NFA CR CR ." NFA not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
 \ NAME ---------------------------------------------------------
 ( NAME: From NFA, type name  [ nfa -> ] )
-: NAME DUP C@ 1F AND 2DUP 1- SWAP 2+ SWAP TYPE
-    2* + C@ 7F AND EMIT ;
+\ : NAME DUP C@ 1F AND 2DUP 1- SWAP 2+ SWAP TYPE
+\    2* + C@ 7F AND EMIT ;
+: NAME CR CR ." NAME not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \ NFASTR -------------------------------------------------------
 ( NFASTR: Convert NFA to name string.  [NFA -> str] )
-: NFASTR DUP 2+ SWAP C@ 1F AND ;
+\ : NFASTR DUP 2+ SWAP C@ 1F AND ;
+: NFASTR CR CR ." NFASTR not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3972,9 +3995,10 @@ E0168 , ( J )
 \ SPEC? --------------------------------------------------------
 ( SPEC?: Find CFA in SPECIAL. Return # of entry, or 0 if not present. )
 ( [ cfa -> cfa # ] )
-: SPEC? 0 SPECIAL @ 1+ 1 DO  ( CFA 0 )
-   OVER SPECIAL I 5 * + @ =  ( CFA 0 CFA SPECi )
-	IF DROP I LEAVE THEN LOOP ; ( CFA # )
+\ : SPEC? 0 SPECIAL @ 1+ 1 DO  ( CFA 0 )
+\   OVER SPECIAL I 5 * + @ =  ( CFA 0 CFA SPECi )
+\	IF DROP I LEAVE THEN LOOP ; ( CFA # )
+: SPEC? CR CR ." SPEC? not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -3985,13 +4009,15 @@ E0168 , ( J )
 \      IF 1- 2DUP TYPE 2* + C@ 7F AND EMIT 
 \      ELSE 2DROP ." Unknown" THEN ;
 \ >>>>'NAME
+: 'NAME CR CR ." 'NAME not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
 \ HEREN --------------------------------------------------------
 ( HEREN: Find the start of the n+1th link field.  { n -> addr } )
-: HEREN DUP C = IF DROP E6FAB ELSE 1+ 5 * E0000 + @  ( NFA )
-   BEGIN 5- DUP @ DUP 0 <> WHILE SWAP DROP REPEAT DROP THEN ;
+\ : HEREN DUP C = IF DROP E6FAB ELSE 1+ 5 * E0000 + @  ( NFA )
+\   BEGIN 5- DUP @ DUP 0 <> WHILE SWAP DROP REPEAT DROP THEN ;
+: HEREN CR CR ." HEREN not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4007,6 +4033,7 @@ VARIABLE ENDA VARIABLE HERE0
 \      DUP 5 * E0000 + @ SWAP HEREN THEN
 \   DUP HERE0 ! ENDA ! BEGIN 2DUP < WHILE DUP ENDA ! ADDR- REPEAT 
 \   2DROP ENDA @ HERE0 @ <> IF -5 ENDA +! THEN ;
+: 'END CR CR ." 'END not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4019,14 +4046,16 @@ VARIABLE ENDA VARIABLE HERE0
 \ +ADDR --------------------------------------------------------
 ( +ADDR: Type addr following control word; incr addr. { I -> I+5 } )
 \ : +ADDR 5+ DUP DUP @ + ."  to " H. ;
+: +ADDR CR CR ." +ADDR not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
 \                work this out when needed
 \ "STR ---------------------------------------------------------
 ( "STR: Type the compiled string following a " word [ I 4-or-2 ] )
-: "STR SWAP 5+ DUP C@ 2DUP SWAP 5 ROLL + SWAP 22 EMIT SPACE TYPE 22 EMIT
-           2* + 1- ;
+\ : "STR SWAP 5+ DUP C@ 2DUP SWAP 5 ROLL + SWAP 22 EMIT SPACE TYPE 22 EMIT
+\           2* + 1- ;
+: "STR CR CR ." highSTR not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \     
 \       
@@ -4061,6 +4090,7 @@ FVARIABLE FTEMP
 \      ENDCASE     ( addr')
 \     ELSE DROP ( addr'=addr )
 \     THEN ;
+: WORDNAME CR CR ." WORDNAME not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4070,6 +4100,7 @@ FVARIABLE FTEMP
 (    { addr -> addr'}  where addr' = addr of next I )
 \ : WORD@ DUP H. 5SP DUP @ DUP H. ( addr cfa )
 \   WORDNAME 5+ PAUSE CR ;
+: WORD@ CR CR ." WORD@ not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4078,6 +4109,7 @@ FVARIABLE FTEMP
 ( UN:C  Decompile a word, omitting header [ cfa -> ] )
 \ : UN:C ." CFA: " DUP 'END DUP DUP @ - -5 = IF H. 5SP ." Primitive" PAUSE CR
 \   ELSE WORD@ BEGIN 5SP WORD@ DUP ENDA @ = UNTIL DROP THEN ;  ( )
+: UN:C CR CR ." UN:C not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4105,6 +4137,7 @@ FVARIABLE FTEMP
 \ ( -- )
 \ : RS. RP@ RP0 @ 5-
 \     DO I @ WORD@ DROP -5 +LOOP ;
+: RS. CR CR ." RS. not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4133,6 +4166,7 @@ FVARIABLE FTEMP
 \   SWAP - DUP RTNSAVE 14 + ! ( Save >RTN* ) ROT ( [ >RTN >RTN* # ] )
 \   NMOVE   ( COPY RTN stack to RTNSAVE)
 \   RTNSAVE 2FB7F ! ; ( Put RTNSAVE addr in 2FB7F )
+: RTNSAVE CR CR ." RTNSAVE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4147,6 +4181,7 @@ FVARIABLE FTEMP
 \     IF R>  ( Go back to ABORT )
 \    ELSE " BEEP" BASICX " 'ERR:'&MSG$(ERRN)"BASIC$ TYPE SP! RP! QUIT
 \    THEN ;
+: SSTERROR CR CR ." SSTERROR not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4171,6 +4206,7 @@ VARIABLE SSTOUT
 \      LITERAL ONERR !
 \      DOSST 0 ONERR ! SSTOUT @ EXECUTE
 \         ELSE ." ;" 2DROP THEN ;
+: SST CR CR ." SST not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4184,7 +4220,8 @@ VARIABLE SSTOUT
 \ : READYSTEP ' DUP RTNSAVE A + !  ( Store CFA )
 \   DUP 'END ENDA @ RTNSAVE F + !   ( Store word END )
 \   5+ RTNSAVE ! ( Save new I )
-\   NEWRTN ; 
+\   NEWRTN ;
+: READYSTEP CR CR ." READYSTEP not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4195,6 +4232,7 @@ VARIABLE SSTOUT
 \ Used in the form STEP  <wordname>.
 ( STEP: Single step next word.)
 \ : STEP READYSTEP SST ;
+: STEP CR CR ." STEP not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4204,6 +4242,7 @@ VARIABLE SSTOUT
 \ ( n -- )
 ( BP: Set a breakpoint.  [ Ib -> ] )
 \ : BP 2FB84 ! ;
+: BP CR CR ." BP not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4215,6 +4254,7 @@ VARIABLE SSTOUT
 ( CONT: Continue execution of a BREAKed or SSTed word to next breakpoint )
 \ : CONT [ ' SSTERROR ] LITERAL ONERR ! 
 \      BRRUN 0 ONERR ! SSTOUT @ EXECUTE  ;
+: CONT CR CR ." CONT not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4224,6 +4264,7 @@ VARIABLE SSTOUT
 \ ( -- )  
 ( FINISH: Complete execution of an interrupted word )
 \ : FINISH 0 BP CONT ;
+: FINISH CR CR ." FINISH  not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4239,6 +4280,7 @@ VARIABLE SSTOUT
 ( BREAK: Execute next word, stopping at Ib specified on stack or at the )
 (        final ;  [ I -> ] )
 \ : BREAK READYSTEP BP CONT ;
+: BREAK CR CR ." BREAK not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4265,7 +4307,9 @@ FVARIABLE FSCRATCH
 \                       Check this in gforth
 \ FINDW --------------------------------------------------------
 ( FINDW: Get a word from input stream and return its cfa [ -> cfa ] )
-: FINDW BL WORD FIND 0= IF ABORT" Word not found" THEN ;
+: FINDW BL WORD FIND 0= IF ABORT" Word not found" THEN
+CR CR ." FINDW not tested in gforth" CR 
+;
 \ -------------------------------------------------------------
 \
 \
@@ -4287,7 +4331,7 @@ FVARIABLE FSCRATCH
 \ gforth implementation not activ since the output
 \ in a terminal window can be copy/paste into a text
 \ editor and sent to any printer in the network
-: PRINT ;
+: PRINT CR CR ." PRINT not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4296,6 +4340,7 @@ FVARIABLE FSCRATCH
 \ SKIP  Send ESC & 11L to the :PRINTER to set perforation skip mode.     
 ( SKIP : Set printer to skip over perf mode )
 \ : SKIP " PRINT CHR$(27);'&l1L';"BASICX ;
+: SKIP CR CR ." SKIP not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 DECIMAL
@@ -4356,7 +4401,9 @@ UTIME #10000 UM/MOD NIP S>F 100.00E0 F/ FP F+ ;
     ' EXECUTE 
     TIME TIMEIN F@ F- 
     CR ." execution time: " 
-    F. ." sec." CR ;
+    F. ." sec." CR
+    ." TIMED not tested in gforth" CR
+;
 \ BASE !
 \ --------------------------------------------------------------
 \

@@ -19,8 +19,6 @@
 ( license CC BY NC SA CreativeCommons 4.0                      )
 ( https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de    )
 ( pascaldagornet at yahoo dot de                               )
-(            and                                               )
-( floppy @ https://www.hpmuseum.org/forum/                     )
 (                                                              )
 ( change log                                                   )
 (   2023 07 14 creation                                        )
@@ -382,6 +380,7 @@ RES2CHR 27 CHR$ S<& 69 CHR$ S<& 2DROP
     ;
 ( ------------------------------------------------------------ )
 ( )
+( )
 ( VALUE ------------------------------------------------------ )
 ( tested on emu71B                                             )
 ( rewrite VALUE of gforth for use on HP71B                     )
@@ -390,8 +389,6 @@ RES2CHR 27 CHR$ S<& 69 CHR$ S<& 2DROP
 ( use...   123 VALUE PARAM                                     )
 : VALUE CREATE , DOES> @ ; 
 ( ------------------------------------------------------------ )
-( )
-( )
 ( )
 ( )
 ( COMPARE ---------------------------------------------------- )
