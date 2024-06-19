@@ -401,6 +401,8 @@ ELSE FALSE THEN UNTIL ;
 ( )
 ( str-gforth -- )
 ( str of type S" 23/11/24" on gforth )
+( in a terminal, with "gforth GLOCK.fth" then                  )
+( S" 24/06/04" STARTCLO in the Gforth prompt                   )
 ( )
 ( -- ) ( nothing in HP71B ) 
 : STARTCLO INITCLO RETIMELO ;

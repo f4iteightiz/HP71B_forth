@@ -40,9 +40,10 @@ S" H71B1.fth" INCLUDED
 ( 12 Dec  2023 update with no continuous render                )
 (               but with only only necessary character updates )
 ( 07 Juni 2024 Github upload )
+( 19 Juni 2024 update because CELLV changed from var to val
 ( )
-76  STRING LINEBUF ( D_ from CLOCK )
-128 STRING SIDEBUF ( D_ from CLOCK )
+76  STRING LINEBUF ( D_ same from CLOCK )
+128 STRING SIDEBUF ( D_ same from CLOCK )
 ( )
 52  STRING SL1
 S" +--------------------------------------------------+" SL1 S!
@@ -209,7 +210,8 @@ VARIABLE DIRECTION                       ( current direction to be used as a tic
     ( however, only the block below should stay in HP71B   )
     ( horizontal lines )
     ( )
-    CELLV @ 5 = IF
+    \ CELLV @ 5 = IF
+    CELLV 5 = IF
     ( )
     LINEBUF CLEARSTR
     0  0 AT-XY<BF SL1 S<&

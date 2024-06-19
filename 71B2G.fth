@@ -68,7 +68,7 @@
 \   2022 06 01 creation / release
 \   2022 07 28 case introduced
 \   2024 01 03 comments updates, END$ done..
-\   202x xx xx --------------------------------
+\   2024 06 17 several cleaning ups
 \   202x xx xx --------------------------------
 \   202x xx xx --------------------------------
 \
@@ -143,7 +143,6 @@ FVARIABLE TBY          \ Temp BUFFER for stack param management
 FVARIABLE TBZ          \ Temp BUFFER for stack param management
 FVARIABLE TBT          \ Temp BUFFER for stack param management
 FVARIABLE TBL          \ Temp BUFFER for stack param management
-FVARIABLE TIMEIN       \ Temp BUFFER
 
 VARIABLE DEPST         \ Temp BUFFER for stack param management
 
@@ -155,10 +154,10 @@ VARIABLE DEPST         \ Temp BUFFER for stack param management
 8 SET-PRECISION
 0 VALUE FDM            \ Fix display mode deactivated
 
-\ needed? see the word CELLV in H71B1
+\ not needed. see the word CELLV in H71B1
 \ 8 result for 64bits PC  or 5 for HP71B
-HERE 0 , HERE SWAP - VALUE CELDEV 
-HERE 0 C, HERE SWAP - VALUE CHARDEV  \  think about this for 1 or 2
+\ HERE 0 , HERE SWAP - VALUE CELDEV 
+\ HERE 0 C, HERE SWAP - VALUE CHARDEV  \  think about this for 1 or 2
 \
 \ work something similar if needed
 \ https://gforth.org/manual/Environmental-Queries.html
@@ -334,7 +333,9 @@ CREATE PAD 80 C, 0 C, 80 ALLOT
 \ --------------------------------------------------------------
 \
 \
-( setup the stack in GFORTH                                    )
+( setup the stack in GFORTH
+( both taken off on June 12 2024 because issue with gforth stack set to 3 )
+( after taking FLITERAL out, reinserted and looks better )
 D_SSET  ( must be this line in case of use of the float stack  )
 D_RPNS
 (  X       Y       Z       T       L    later on HP71B STACK   )
@@ -365,7 +366,311 @@ D_RPNS
 \ >>>> 4x the sign ">" indicate an HP71B word which translation in gforth is so far not done
 \
 \ ***************************************************************************************************************
-\
+\ all words lister with VLIST..   "
+(
+?
+:
+]
+;
+*
+#
+.
+[
+/
+,
+3
+2
+1
+0
+@
+!
+>
+<
+=
+-
++
+J
+I
+'
+L
+T
+Z
+Y
+X
+S<
+S=
+S!
+C,
+U.
+<>
+M*
+D<
+<#
+#>
+#S
+CR
+*/
+D.
+M/
+S0
+.(
+."
+DO
+IF
+C!
+C@
+BL
+D+
+D-
+U<
+0>
+0<
+1-
+2-
+1+
+2+
+5-
+5+
+2/
+2*
++!
+0=
+OR
+R@
+>R
+R>
+OF
+F/
+F*
+F-
+F+
+N!
+N@
+F.
+LN
+H.
+.S
+IP
+FP
+ASC
+VAL
+POS
+EOF
+MAX
+MIN
+D.R
+MOD
+PAD
+KEY
+BYE
+>IN
+BLK
+USE
+TIB
+RP0
+SP0
+ABS
+NOT
+XOR
+AND
+ROT
+DUP
+RP!
+RP@
+SP!
+C@+
+SP@
+RDN
+RUP
+E^X
+Y^X
+1/X
+X^2
+TAN
+COS
+SIN
+ENG
+SCI
+FIX
+STD
+RCL
+STO
+[']
+UM*
+CHS
+LGT
+HEX
+4N@
+S>&
+S<&
+END$
+CHR$
+STR$
+SUB$
++BUF
+TYPE
+CASE
+SIGN
+?DUP
+HOLD
+/MOD
+HERE
+EMIT
+WORD
+QUIT
+FIND
+ROLL
+LOOP
+ELSE
+THEN
+BASE
+PREV
+WARN
+S->D
+DABS
+FILL
+2DUP
+OVER
+PICK
+SWAP
+DROP
+GROW
+10^X
+X<>Y
+ATAN
+ACOS
+ASIN
+EXIT
+SPAN
+#TIB
+FTOI
+ITOF
+SQRT
+X#Y?
+X=Y?
+X>Y?
+X=0?
+X<Y?
+CRLF
+FABS
+LEFT$
+SMOVE
+NULL$
+OPENF
+LOADF
+BLOCK
+ENDOF
+M/MOD
+*/MOD
+DEPTH
+SPACE
+ABORT
+?COMP
+ALLOT
+QUERY
+CMOVE
++LOOP
+WHILE
+UNTIL
+BEGIN
+DOES>
+LEAVE
+LINE#
+LIMIT
+FIRST
+STATE
+ONERR
+OKFLG
+FENCE
+WIDTH
+COUNT
+2SWAP
+DIGIT
+2DROP
+NMOVE
+2OVER
+ENTER
+LASTX
+>BODY
+FLUSH
+EXPBF
+CONBF
+X>=Y?
+X<=Y?
+FINDF
+FDROP
+VARID
+FSTR$
+NFILL
+RIGHT$
+MAXLEN
+STRING
+CLOSEF
+SMUDGE
+SPACES
+ABORT"
+NUMBER
+TOGGLE
+LATEST
+?STACK
+FORGET
+REPEAT
+CREATE
+SCRFIB
+NMOVE>
+CMOVE>
+NEGATE
+SHRINK
+OUTPUT
+BASICX
+FENTER
+UM/MOD
+KILLBF
+FINDBF
+MAKEBF
+BASIC$
+BASICF
+BASICI
+NALLOT
+ADJUSTF
+SYNTAXF
+CREATEF
+ENDCASE
+COMPILE
+LITERAL
+'STREAM
+ENCLOSE
+CONVERT
+DECIMAL
+CURRENT
+CONTEXT
+DNEGATE
+DEGREES
+RADIANS
+EXECUTE
+PRIMARY
+LISTING
+CLOSEALL
+DLITERAL
+TRAVERSE
+EXPECT96
+VARIABLE
+CONSTANT
+FLITERAL
+PAGESIZE
+ASSEMBLE
+IMMEDIATE
+-TRAILING
+INTERPRET
+[COMPILE]
+SECONDARY
+FVARIABLE
+FCONSTANT
+?TERMINAL
+VOCABULARY
+DEFINITIONS
+STRING-ARRAY
+)
 \
 \ ! ------------------------------------------------------------
 \ in gforth, too
@@ -564,18 +869,20 @@ D_RPNS
 \
 \ .S -----------------------------------------------------------
 \ similar in gforth: output only the integer stack
+\ 
+\ update 2024 June 12: .S = D_RPNS taken out because the gforth float stack was reduced by 1 when use. reason ?
+\                      just keep the .S as it is
+\
 \ however rewritten https://www.reddit.com/r/Forth/comments/tt3ll7/how_do_you_replace_the_ok_prompt_in_gforth/
-\ .S on a terminal than D_RPNS
-: .S
-\    ." ( " TYPE depth 0 max maxdepth-.s @ min dup 0 ?DO dup i - pick . LOOP ." )" TYPE drop ;
-    D_RPNS ;
+\ use .S on a terminal instead of  D_RPNS?
+\ : .S  ." ( " TYPE depth 0 max maxdepth-.s @ min dup 0 ?DO dup i - pick . LOOP ." )" TYPE drop ;
 \
 \ test HP71B
 \ 1 2 Endline
 \ .S Endline >> 2 1  OK { 2 }
 \
 \ test PC Gforth
-\ 1 2 .S 
+\ 1 2 .S incase ": .S D_RPNS ;"
 \
 \ HP71B float stack content, RPN HP41 (& gforth stack):
 \   X       0.00000     Top gforth      0.00000
@@ -1047,13 +1354,15 @@ D_RPNS
 \
 \                               test this
 \ COMPILE ------------------------------------------------------
+\ 12 Juni 2024 line below taken out during searching for reason when gforth stack reduced by 1
+\
 \ use in the form : name1 ... COMPILE name2 ...
 \ COMPILE. Compile the CFA of name2 when namel is executed.
 \ Typically name1 is an immediate word and name2 is not;
 \ COMPILE ensures that name2 is compiled, not executed,
 \ when namel is encountered in a new definition.
 \ https://gist.github.com/ruv/7c0b6fae5d5f388dd54062b59b732118
-S" COMPILE.FORTH83.GFORTH.fth" INCLUDED 
+\ S" COMPILE.FORTH83.GFORTH.fth" INCLUDED 
 \ --------------------------------------------------------------
 \
 \
@@ -1451,7 +1760,8 @@ CR CR ." EXPECT96 not tested" CR ;
 \ = F* later on HP71 filtered by awk
 : G_F* D_?SINIT
 \    ." f* stacks in 1 " D_RPNS
-    FDUP L F! F* X F! Z F@ Y F! T F@ Z F!    D_RPNREC
+    FDUP L F! F* X F! Z F@ Y F! T F@ Z F!
+    D_RPNREC \ reconstitute the gforth stack based on the RPN stack X Y Z T
 \    ." f* stacks out " D_RPNS
 ;
 \ --------------------------------------------------------------
@@ -1464,7 +1774,9 @@ CR CR ." EXPECT96 not tested" CR ;
 \    X      Y      Z      T      L 
 \    X+Y    Z      T      T      X
 : G_F+
-    D_?SINIT FDUP L F! F+ X F! Z F@ Y F! T F@ Z F! D_RPNREC ;
+    D_?SINIT FDUP L F! F+ X F! Z F@ Y F! T F@ Z F!
+    D_RPNREC \ reconstitute the gforth stack based on the RPN stack X Y Z T
+;
 \ --------------------------------------------------------------
 \
 \
@@ -1477,33 +1789,41 @@ CR CR ." EXPECT96 not tested" CR ;
 \    Y/X    Z      T      T      X
 : G_F/
 \    ." f/ stacks in " D_RPNS
-    D_?SINIT  FDUP L F! F/ X F! Z F@ Y F! T F@ Z F! D_RPNREC ;
+    D_?SINIT  FDUP L F! F/ X F! Z F@ Y F! T F@ Z F!
+    D_RPNREC \ reconstitute the gforth stack based on the RPN stack X Y Z T
+;
 \ --------------------------------------------------------------
 \
 \
 \ F. -----------------------------------------------------------
 \
 \ tested 15 Sept 2023
+\ update 18 June 2024 F. instead of G_F. for overwritting the gforth F.
+\
 \ original F. in gforth will throw out the top of the float stack
 \ display content of X and dont alter the stack; different from standard forth F.
 \ update required for formatting the outputs with SCI ENG
 \ see https://gforth.org/manual/Floating_002dpoint-output.html
 \ ( -- )
-: G_F. D_?SINIT X F@ F. ;
+: F. D_?SINIT X F@ F. ;
 \ --------------------------------------------------------------
 \
 \
 \ FABS ---------------------------------------------------------
+\
 \ tested 15 Sept 2023
+\ Updated 18 Juni 2024 change from G_FABS to FABS naming
+\ overwritting the gforth FABS for updating the simulated
+\ RPN stack
+\
 \ original FABS
 \ ( r1 -- abs"r1" )
 \    X      Y      Z      T      L 
 \    abs(X) Y      Z      T      X
-: G_FABS   
+: FABS   
 \    ." fabs stacks in " D_RPNS
-    D_?SINIT
-    FDUP L F!
-    FABS  \ the gforth is called
+    D_?SINIT FDUP L F!
+    FABS       \ the gforth word is called
     FDUP X F!
 \    ." fabs stacks out " D_RPNS
 ;
@@ -1517,7 +1837,9 @@ CR CR ." EXPECT96 not tested" CR ;
 \
 \
 \ FDROP --------------------------------------------------------
+\
 \ tested on 19 Sept 2023
+\
 \ https://www.forth.com/starting-forth/4-conditional-if-then-statements/
 \ original FDROP in HP71B but with another behaviour in gforth
 \ due to RPN stack of fixed depth 4
@@ -1530,7 +1852,7 @@ CR CR ." EXPECT96 not tested" CR ;
     Y F@ X F! 
     Z F@ Y F!
     T F@ Z F!
-    D_RPNREC
+    D_RPNREC   \ reconstitute the gforth stack based on the RPN stack X Y Z T
 \    ." G_FROP out " D_RPNS
 ;
 \ --------------------------------------------------------------
@@ -1545,6 +1867,14 @@ CR CR ." EXPECT96 not tested" CR ;
 \
 \
 \ FENTER -------------------------------------------------------
+\
+\ in EMU71, > UN: FENTER < in forth prompt
+\   Word: FENTER
+\   LFA: E4BFC      Link: E4B8A 
+\   NFA: E4C01      686454E445542D
+\   CFA: E4C0F      Primitive
+\   OK { 0 } 
+\
 \ tested 19 Sept 2023
 \ similar to gforth FDUP w/o stack move
 \ ( t z y r -- z y r r )
@@ -1556,7 +1886,8 @@ CR CR ." EXPECT96 not tested" CR ;
     Z F@ T F! 
     Y F@ Z F!
     X F@ Y F!
-    D_RPNREC  ;
+    D_RPNREC  \ reconstitute the gforth stack based on the RPN stack X Y Z T
+    ;
 \ --------------------------------------------------------------
 \
 \
@@ -1569,13 +1900,35 @@ CR CR ." EXPECT96 not tested" CR ;
 \ --------------------------------------------------------------
 \
 \
+\             what to do with the CFA ?
 \ FIND ---------------------------------------------------------
+\
+\ test EMU71
+\ " SEGMENT" . 2- S. COUNT TYPE
+\ 7 [ 218255 ] SEGMENT OK { 0 } 
+\
+\ " SEGMENT" . 2- FIND S.
+\ 7 [ 215038 1048575 ]  OK { 2 } 
+\
+\ " SEGMENT" S. . 2- FIND S.
+\ [ 218257 7 ] 7 [ 215038 1048575 ]  OK { 2 } 
+\ .
+\ -1  OK { 1 }    >> SEGMENT non immediate words.
+\
+\ LIST .. SEGMENT ..
+\
+\ " FENTER" S. . 2- FIND S. . HEX .
+\ [ 35491 6 ] 6 [ E4C0F FFFFF ] -1 -1B3F1  OK { 0 } 
+\
+\ " R>" . 2- FIND S.
+\ 2 [ E09F0 FFFFF ]  OK { 2 } 
+\      
 \ ( addr1 -- addr2 n )
 \ Search the dictionary (in the currently active search order) for the word contained in the counted string at
 \ addr1 If the word is found, FIND returns the word's CFA (= addr2) and either n = 1 (if the word is
 \ immediate) or n = -1 (if the word isn't immediate). If the word isn't found, FIND returns addr2 = addr1
 \ and n = O.
-: FIND  CR CR ." FIND not implemented in gforth" CR ;
+: FIND find ;
 \ --------------------------------------------------------------
 \
 \
@@ -1605,12 +1958,30 @@ CR CR ." EXPECT96 not tested" CR ;
 \ --------------------------------------------------------------
 \
 \
-\                 test this. Behaviour on HP71B?
 \ FIX ----------------------------------------------------------
+\ tested 2024 June 17
+\
+\ EMU71
+\ 12 FIX
+\ OK { 0 } 
+\ 1.0 3.0 PERE12
+\
+\ Param B: 3.00000000000 
+\ Param A: 1.00000000000 
+\ ELLIPSE PERIM = 13.3648932206  OK { 0 } 
+\
 \ set the display format.
 \ https://gforth.org/manual/Floating_002dpoint-output.html
 : FIX ( n - )
-    DUP FDM ! SET-PRECISION 0 SDM ! 0 EDM ! CR CR ." FIX not tested in gforth" CR ;
+    DUP TO FDM SET-PRECISION 0 TO SDM 0 TO EDM ;
+\
+\ test gforth
+\ 12 FIX  ok
+\ 0.0E 1.0E 9.0E MAGM  ok
+\ F. 3.96407842431  ok
+\ S. [ ]  ok
+\ .S <0>  ok
+\
 \ --------------------------------------------------------------
 \
 \
@@ -1619,8 +1990,8 @@ CR CR ." EXPECT96 not tested" CR ;
 \ like in gforth
 \ IMMEDIATE, COMPILE. Compile the value x (the contents of the X-register) into the dictionary. When
 \ the colon definition is later executed, x will be placed in the X-register, lifting the floating-point stack.
-: FLITERAL  FLiteral
-    CR CR ." not tested for gforth" CR ;
+\ : FLITERAL  FLiteral
+\    CR CR ." not tested for gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -1703,15 +2074,28 @@ CR CR ." EXPECT96 not tested" CR ;
 \ ( n -- flag )
 \ Enlarge the user dictionary by n nibbles and return a true flag; or if there is insufficient memory, return a
 \ false flag (without enlarging the dictionary).
-: GROW  CR CR ." GROW not implemented in gforth" CR ;
+: GROW  CR CR ." GROW not implemented in gforth since not necessary. invoke initialization options at gforth start instead" CR ;
 \ --------------------------------------------------------------
 \
 \
 \ H. -----------------------------------------------------------
+\ released 17June2024
 \
 \ ( un - )
 \ Display un in base 16 as an unsigned number with one trailing blank.
-: H.  CR CR ." H. not implemented in gforth" CR ;
+: H.  hex. ;
+\
+\ test EMU71
+\ 15 H.
+\ F  OK { 0 } 
+\ 16 H.
+\ 10  OK { 0 } 
+\
+\ test gforth
+\ 16 hex. $10  ok
+\ 15 hex. $F  ok
+
+\
 \ --------------------------------------------------------------
 \
 \
@@ -1755,7 +2139,9 @@ CR CR ." EXPECT96 not tested" CR ;
 \ Take integer part of X into X (and the original X into the L)
 \    X,xxx      Y      Z      T      L 
 \    X          Y      Z      T      X,xxx
-: IP D_?SINIT X F@ FDUP L F! FTRUNC FDUP X F! D_RPNREC ;
+: IP D_?SINIT X F@ FDUP L F! FTRUNC FDUP X F! 
+D_RPNREC \ reconstitute the gforth stack based on the RPN stack X Y Z T
+;
 \ test
 \ HP71B
 \ 1.2345 IP F.
@@ -1765,15 +2151,45 @@ CR CR ." EXPECT96 not tested" CR ;
 \ --------------------------------------------------------------
 \
 \
-\                                test this
 \ ITOF ---------------------------------------------------------
+\
+\ tested 18June2024
+\
+\ test EMU71
+\ F. X<>Y F. X<>Y 2 ITOF F. X<>Y F.
+\ 3.00000000000 8.00000000000 2.00000000000 3.00000000000  OK { 2 } 
 \
 \ place an integer into the float stack and move it up
 ( n -- r )  
 \    X          Y      Z      T      L 
-\    float(n)   X      Y      Z      (L?)
-: ITOF D_?SINIT S>F Z F@ T F! Y F@ Z F! X F@ Y F! FDUP X F! D_RPNREC CR CR ." ITOF to be tested in gforth" CR ;
-\ avoid to have fstack > 4 therefore D_RPNS error messages
+\    float(n)   X      Y      Z      L
+: ITOF D_?SINIT S>F Z F@ T F! Y F@ Z F! X F@ Y F! FDUP X F! 
+D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
+;
+\ test gforth
+\ 8.0E 3.0E F. X<>Y F. X<>Y 2 ITOF F. X<>Y F. 3. 8. 
+\ 2. 3.  ok
+\ D_RPNS 
+\ HP71B float stack content, RPN HP41 (& gforth stack):
+\   X       3.00000     Top gforth      3.00000
+\   Y       2.00000                     2.00000
+\   Z       8.00000                     8.00000
+\   T       0.00000     Bottom gforth   0.00000
+\   LASTX   0.00000
+\
+\ float   stack gforth  
+\  <stack depth> bottom to top, of stack
+\  <4> 0.000000000000E0 8.000000000000E0 2.000000000000E0 3.000000000000E0 
+\
+\ integer stack gforth  
+\  <stack depth> bottom to top, of stack
+\  <0> 
+\
+\ RADIAN ON
+\ BASE: 10 
+\
+\ ok
+\
 \ --------------------------------------------------------------
 \
 \
@@ -1813,7 +2229,9 @@ CR CR ." EXPECT96 not tested" CR ;
 \ Lift the floating-point stack and copy the contents of the LAST X register into the X-register.
 ( r1 -- r1 L )
 ( RPN: X Y Z T L --   L X Y Z L )
-: LASTX ( ." LASTX In  " D_RPNS ) D_?SINIT Z F@ T F! Y F@ Z F! X F@ Y F! L F@ X F! D_RPNREC ( RPN stack recovery in GFORTH STack ) ;
+: LASTX ( ." LASTX In  " D_RPNS ) D_?SINIT Z F@ T F! Y F@ Z F! X F@ Y F! L F@ X F! 
+D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
+;
 \ --------------------------------------------------------------
 \
 \
@@ -1934,15 +2352,15 @@ CR CR ." EXPECT96 not tested" CR ;
 \ LOOP ---------------------------------------------------------
 \ tested with SNAKE.fth on 11 Oct 2023
 \
-: loop ( do-sys | orig do-sys xt.then -- )
-  dup ['] then <> if  [compile] loop exit then
-  >r recurse r> execute
-; immediate
+\ : loop ( do-sys | orig do-sys xt.then -- )
+\  dup ['] then <> if  [compile] loop exit then
+\  >r recurse r> execute
+\ ; immediate
 \
-: +loop ( do-sys | orig do-sys xt.then -- )
-  dup ['] then <> if  [compile] +loop exit then
-  >r recurse r> execute
-; immediate
+\ : +loop ( do-sys | orig do-sys xt.then -- )
+\  dup ['] then <> if  [compile] +loop exit then
+\  >r recurse r> execute
+\ ; immediate
 \ --------------------------------------------------------------
 \
 \
@@ -2601,7 +3019,7 @@ VARIABLE PRIMARY
     Z F@ Y F!
     T F@ Z F!
     TB F@ T F!
-    D_RPNREC
+    D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
 \    ." RDN Out  " D_RPNS
 ;
 \ --------------------------------------------------------------
@@ -2675,17 +3093,14 @@ VARIABLE PRIMARY
 \ --------------------------------------------------------------
 \
 \
-\                        test this
 \ RP@ ----------------------------------------------------------
 \
-\ in gforth 
+\ in gforth too
 \ Return the current value of the return-stack pointer.
 \ ( -- addr )
 \ RP@
 \ gforth   rp@ ( – a-addr ) gforth-0.2 “rp-fetch”
 \ .. use ?
-: RP@ RP@
-    CR CR ." RP@ to be tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2705,7 +3120,9 @@ VARIABLE PRIMARY
 \ ( r1 r2 r3 r4 -- r4 r1 r2 r3 )
 \    X      Y      Z      T      L 
 \    T      X      Y      Z      L
-: RUP ( ." RUP In  " D_RPNS ) D_?SINIT  T F@ TB F!  Z F@ T F!  Y F@ Z F!  X F@ Y F!  TB F@ X F!  D_RPNREC  ( ." RUP Out  " D_RPNS ) ;
+: RUP ( ." RUP In  " D_RPNS ) D_?SINIT  T F@ TB F!  Z F@ T F!  Y F@ Z F!  X F@ Y F!  TB F@ X F!  
+D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
+( ." RUP Out  " D_RPNS ) ;
 \ --------------------------------------------------------------
 \
 \
@@ -3634,6 +4051,13 @@ VARIABLE WARN
 \
 \
 \ X ------------------------------------------------------------
+\
+\ use EMU71
+\ X H.
+\ 2FBD0  OK { 0 } 
+\ X .
+\ 195536  OK { 0 } 
+\
 \ already above in fvariable declaration
 \ Return the address of the floating-point X-register.
 \ ( -- X-addr ) or simply ( -- 2FBDO )
@@ -3753,13 +4177,22 @@ VARIABLE WARN
 \ --------------------------------------------------------------
 \
 \
-\                      test this what is in L
+\                 
 \ Y^X ----------------------------------------------------------
+\
+\ test EMU71
+\ 2.0 3.0 Y^X F. L RCL F.
+\ 8.00000000000 3.00000000000  OK { 2 }
 \
 \ ( r1 r2 -- r1**r2 )  
 \    T      Z      Y      X      L
-\    T      T      Z     Y**X    X (?)
-: Y^X D_?SINIT FDUP L F! F**  X F! Z F@ Y F! T F@ Z F!  D_RPNREC  ;
+\    T      T      Z     Y**X    X
+: Y^X D_?SINIT FDUP L F! F**  X F! Z F@ Y F! T F@ Z F!  
+D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
+;
+\
+\ test gforth
+\ 2.0E 3.0E Y^X F. L RCL F. 8. 3.  ok
 \ --------------------------------------------------------------
 \
 \
@@ -3834,13 +4267,36 @@ VARIABLE WARN
 \ **************************************************************
 \
 \
-\                work this out when needed
 \ N-A ----------------------------------------------------------
 \ convert a nibble to its hex ascii equivalent.  n -> )
+\
+\ test EMU71
+\ 9 N-A
+\ 9 OK { 0 } 
+\ F N-A
+\ F OK { 0 } 
+\ G N-A
+\ FTH ERR:G not recognized
+\ FF N-A
+\ 6 OK { 0 } 
+\ 6 N-A
+\ 6 OK { 0 } 
+\ 2 N-A
+\ 2 OK { 0 } 
 DECIMAL
-\ : N-A 10 - DUP 0< IF 58 + ELSE 65 + THEN EMIT ;
-\ >>>> N-A
-: N-A CR CR ." N-A not implemented in gforth" CR ;
+: N-A 10 - DUP 0< IF 58 + ELSE 65 + THEN EMIT ;
+\
+\ test gforth
+\ 9 N-A 9 ok
+\ F N-A 
+\ :2: Undefined word
+\ >>>F<<< N-A
+\ Backtrace:
+\ $7FA6EF6B9A68 throw 
+\ $7FA6EF6CFDB0 no.extensions 
+\ $7FA6EF6B9D28 interpreter-notfound1 
+\ HEX F N-A F ok
+\ HEX FF N-A 6 ok
 \ --------------------------------------------------------------
 \
 \
@@ -3854,40 +4310,98 @@ DECIMAL
 \
 \
 \ DUMP ---------------------------------------------------------
-\ like gforth
+\
+\ testing results a bit different (PAD structure? nibbles?..)
+\ output anyway different
+\
+\ test EMU71
+\ " ABCD" DUMP
+\ 1424 OK { 0 } 
+\ " ABCD" . 9 DUMP    
+\ 4 142434445 OK { 0 } 
+\
+\ similar gforth
 \ Display n nibbles, starting at addr, as ASCII hex characters.
 \ ( addr n -- )
 \ : DUMP OVER + SWAP ( addr n -> print n nibs starting at addr)
 \    DO I N@ N-A LOOP ;
+\
+\ standard gforth dump
+\ S" ABCD" dump 
+\ 556A9EF97960: 41 42 43 44              -                           ABCD
+\ ok
+\ S" ABCD" . 9 DUMP 4 
+\ 556BC7AD1FC0: 41 42 43 44  00 00 00 00 - 00                        ABCD.....
+\ ok
+\ 
 \ --------------------------------------------------------------
 \
 \
-\                test this
+\               improve/test this for having same output
 \ DUMP+ --------------------------------------------------------
+\
+\ test EMU71
+\ " EFGH" DUMP+
+\ 5464 OK { 1 } 
+\ 5 DUMP+
+\ 74845 OK { 1 } 
+\
 \ Display n nibbles, starting at addr, as ASCII hex characters.
 \ Leave the next address (addr+n) on the stack.
 \ ( addr n -- addr+n )
-: DUMP+ 2DUP + ROT ROT DUMP
-CR ." DUMP+ not tested in gforth" CR
-; ( Do DUMP; leave next addr on stack )
+: DUMP+ 2DUP + ROT ROT DUMP ;
+\
+\ test gforth
+\ S" EFGH" DUMP+   
+\ 556BC7AD3890: 45 46 47 48              -                           EFGH
+\ ok
+\ 5 DUMP+ 
+\ 556BC7AD3894: 00 00 00 00  00          -                           .....
+\ ok
+\
 \ --------------------------------------------------------------
 \
 \
-\                work this out when needed
+\         work this out when needed due to different output
 \ SHOW ---------------------------------------------------------
+\
+\ EMU71 test
+\ OK { 0 } 
+\ " ABCD" SHOW
+\ 353AE      34241 
+\ 353B3      F0444 
+\ 353B8      F0571 
+\ 353BD      FDC0 
+\ OK { 1 }
+\
 ( SHOW: disp contents of n consecutive memory cells.  { addr n -> } )
-\ : SHOW 1+ 1 DO DUP H. DUP @ 5 SPACES H. PAUSE CR 5+ LOOP ;
-\ >>>> SHOW
-: SHOW CR CR ." SHOW not implemented in gforth" CR ;
+: SHOW CR 1+ 1 DO DUP H. DUP @ 5 SPACES H. PAUSE CR 5+ LOOP ;
+\
+\ test gforth
+\ S" ABCD" SHOW 
+\ $5557F1C69720      $555744434241 
+\ $5557F1C69728      $0 
+\ $5557F1C69730      $0 
+\ $5557F1C69738      $121 
+\  ok
+\
 \ --------------------------------------------------------------
 \
 \
-\                work this out when needed
 \ BASE? --------------------------------------------------------
+\
+\ test EMU71
+\  OK { 0 } 
+\  BASE?
+\  10  OK { 0 }
+\
 ( put current base in X and display)
-\ : BASE? BASE @ DUP DECIMAL . BASE ! ;
+: BASE? BASE @ DECIMAL . ;
 \ : BASE? BASE @ DUP DECIMAL . DUP ITOF X F! ;
-: BASE? CR CR ." BASE? not implemented in gforth" CR ;
+\
+\ test gforth
+\ BASE? 10  ok
+\
 \ --------------------------------------------------------------
 \
 \
@@ -3898,8 +4412,8 @@ CR ." DUMP+ not tested in gforth" CR
 \ --------------------------------------------------------------
 \
 \
-\       not implemented since relation to BASIC and HW
 \ D- -----------------------------------------------------------
+\ not implemented since only relation to BASIC and HW HP71B
 ( D- {D P R *}: Do DISPLAY IS {DISPLAY  PRINTER RS232 *} )
 \ : D-P " DISPLAY IS PRINTER" BASICX ;
 \ : D-* " DISPLAYIS*" BASICX ;
@@ -3913,19 +4427,20 @@ CR ." DUMP+ not tested in gforth" CR
 \ --------------------------------------------------------------
 \
 \
-\                work this out when needed
 \ ROOM? --------------------------------------------------------
 \ ROOM? Display the number of nibbles available in the FORTHRAM file
 ( ROOM?:  Display number of nibbles available in dictionary )
 \ : ROOM? SP0 @ HERE - 458 - . ;
-\ >>>> ROOM? ---------------------------------------------------
-: ROOM CR CR ." ROOM not implemented in gforth" CR ;
+: ROOM? CR CR ." ROOM not implemented in gforth since no room limitation like in HP71B" CR ;
+\ --------------------------------------------------------------
 \
 \
 \ S. -----------------------------------------------------------
 \ tested 2023 11 19
+\
 \ equivalent to standard gforth .S
-( S.: Print stack contents bottom first )
+\
+( S.: Print integer stack contents bottom first )
 : S. ." [ " DEPTH 0> IF DEPTH 1 SWAP DO I PICK U. -1 +LOOP THEN ." ] " ;
 \ use..
 \ HP71B
@@ -3942,30 +4457,43 @@ CR ." DUMP+ not tested in gforth" CR
 (          NFAddr1 -> NFAddr2 )
 HEX
 \ : ADDR- 5- @ ;
-: ADDR- CR CR ." ADDR- not tested in gforth" CR ;
+: ADDR-  5- @ CR CR ." ADDR- not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
 \                work this out when needed
 \ NFA ----------------------------------------------------------
+\ https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Name-token.html
+\ check behaviour in EMU71 and HP71B
 ( NFA:  GIVEN CFA, GET NFA.  [ CFA -> NFA ] )
+\ CFA is code field address
 \ : NFA 2- -1 TRAVERSE ;
-\ >>>> NFA
-: NFA CR CR ." NFA not implemented in gforth" CR ;
+: NFA >name ." NFA not released in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
 \ NAME ---------------------------------------------------------
+\ test on HP71B and EMU71
 ( NAME: From NFA, type name  [ nfa -> ] )
+\ NFA is name field address
 \ : NAME DUP C@ 1F AND 2DUP 1- SWAP 2+ SWAP TYPE
 \    2* + C@ 7F AND EMIT ;
-: NAME CR CR ." NAME not implemented in gforth" CR ;
+: NAME .name CR CR ." NAME not released in gforth" CR ;
+\ test gforth
+\ S" RAD" find-name .name RAD  ok
 \ --------------------------------------------------------------
 \
 \ NFASTR -------------------------------------------------------
+\ test on HP71B and EMU71 
 ( NFASTR: Convert NFA to name string.  [NFA -> str] )
 \ : NFASTR DUP 2+ SWAP C@ 1F AND ;
-: NFASTR CR CR ." NFASTR not implemented in gforth" CR ;
+: NFASTR name>string CR CR ." NFASTR not released in gforth" CR ;
+\ test gforth
+\ S" RAD" find-name   ok
+\ .S <1> 139831737855256  ok
+\ name>string  ok
+\ type RAD ok
+\
 \ --------------------------------------------------------------
 \
 \
@@ -3973,21 +4501,21 @@ HEX
 \ SPECIAL ------------------------------------------------------
 ( SPECIAL: Array containing list of words with remote CFA's. )
 ( 1st value is # of entries. )
-CREATE SPECIAL 
-   D ,
-   E701A , ( COLON )
-   E71E8 , ( SEMI )
-   E1C54 , ( number )
-   E22ED , ( F-number )
-   E1C67 , ( DO )
-   E3FF1 , ( LOOP )
-   E3F81 , ( +LOOP )
-   E5D86 , ( IF / UNTIL / WHILE )
-   E5D99 , ( ELSE / REPEAT )
-   E0640 , ( " )
-   E0EFA , ( ." )
-   E580E , ( ABORT")
-E0168 , ( J )
+\ CREATE SPECIAL 
+\   D ,
+\   E701A , ( COLON )
+\   E71E8 , ( SEMI )
+\   E1C54 , ( number )
+\   E22ED , ( F-number )
+\   E1C67 , ( DO )
+\   E3FF1 , ( LOOP )
+\   E3F81 , ( +LOOP )
+\   E5D86 , ( IF / UNTIL / WHILE )
+\   E5D99 , ( ELSE / REPEAT )
+\   E0640 , ( " )
+\   E0EFA , ( ." )
+\   E580E , ( ABORT")
+\ E0168 , ( J )
 \ --------------------------------------------------------------
 \
 \
@@ -4004,12 +4532,12 @@ E0168 , ( J )
 \
 \                work this out when needed
 \ 'NAME --------------------------------------------------------
+\ test this on EMU71 and HP71B
 ( 'NAME: Given CFA, type name.  { CFA -> } )
 \ : 'NAME DUP NFA SWAP OVER - 2/ 1- SWAP NFASTR DUP 4 ROLL = 
 \      IF 1- 2DUP TYPE 2* + C@ 7F AND EMIT 
 \      ELSE 2DROP ." Unknown" THEN ;
-\ >>>>'NAME
-: 'NAME CR CR ." 'NAME not implemented in gforth" CR ;
+: 'NAME >name .name CR CR ." 'NAME not released in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4026,6 +4554,7 @@ VARIABLE ENDA VARIABLE HERE0
 \
 \                work this out when needed
 \ 'END ---------------------------------------------------------
+\
 ( END: given a CFA, find the addr of the start of the next word   )
 ( and store in ENDA.   CFA -> )
 \ : 'END DUP E0000 U< IF LATEST HERE
@@ -4044,14 +4573,16 @@ VARIABLE ENDA VARIABLE HERE0
 \
 \                work this out when needed
 \ +ADDR --------------------------------------------------------
+\ how does it work under HP71B??
+\ subroutine of WORDNAME therefore no immediate use so far...
 ( +ADDR: Type addr following control word; incr addr. { I -> I+5 } )
 \ : +ADDR 5+ DUP DUP @ + ."  to " H. ;
 : +ADDR CR CR ." +ADDR not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
-\                work this out when needed
 \ "STR ---------------------------------------------------------
+\ subroutine of WORDNAME therefore no immediate use so far...
 ( "STR: Type the compiled string following a " word [ I 4-or-2 ] )
 \ : "STR SWAP 5+ DUP C@ 2DUP SWAP 5 ROLL + SWAP 22 EMIT SPACE TYPE 22 EMIT
 \           2* + 1- ;
@@ -4060,6 +4591,7 @@ VARIABLE ENDA VARIABLE HERE0
 \     
 \       
 \ FTEMP --------------------------------------------------------
+\ how does it work under HP71B??
 ( FTEMP: FVariable to hold X during decompilation of a FP word )
 FVARIABLE FTEMP
 \ --------------------------------------------------------------
@@ -4067,6 +4599,7 @@ FVARIABLE FTEMP
 \
 \                work this out when needed
 \ WORDNAME -----------------------------------------------------
+\ subroutine of WORD@ therefore no immediate use so far...
 ( WORDNAME: Given I and its WA, type the word identified; advance I)
 ( [ I WA -> I' ]  I' = next I -5 )
 \ : WORDNAME DUP ABS 10000 > ( Is this a legitimate word addr? )
@@ -4096,6 +4629,7 @@ FVARIABLE FTEMP
 \
 \               work this out if needed
 \ WORD@ --------------------------------------------------------
+\ subroutine of UN:C therefore no immediate use so far...
 ( WORD@: Given an addr, type it, it's content, and the word identified. )
 (    { addr -> addr'}  where addr' = addr of next I )
 \ : WORD@ DUP H. 5SP DUP @ DUP H. ( addr cfa )
@@ -4104,12 +4638,12 @@ FVARIABLE FTEMP
 \ --------------------------------------------------------------
 \
 \
-\                work this out when needed
 \ UN:C ---------------------------------------------------------
+\ subroutine of UN: therefore no immediate use found in gforth
 ( UN:C  Decompile a word, omitting header [ cfa -> ] )
 \ : UN:C ." CFA: " DUP 'END DUP DUP @ - -5 = IF H. 5SP ." Primitive" PAUSE CR
 \   ELSE WORD@ BEGIN 5SP WORD@ DUP ENDA @ = UNTIL DROP THEN ;  ( )
-: UN:C CR CR ." UN:C not implemented in gforth" CR ;
+: UN:C CR CR see-code ." UN:C not tested in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4124,11 +4658,11 @@ FVARIABLE FTEMP
 \     DUP 5- ." LFA: " DUP H. 5SP @ ." Link: " H. PAUSE CR ( CFA NFA )
 \   DUP ." NFA: " H. 5SP NFASTR 1+ 2* SWAP 2- SWAP DUMP PAUSE CR ( CFA )
 \   UN:C ;
-: UN: SEE ;
+: UN: see ;
 \ --------------------------------------------------------------
 \
 \
-\                          work this out
+\                          test this
 \ RS. ----------------------------------------------------------
 \ Decompiles the contents of the return stack.
 \ RS. lists each item on the return stack, in bottom-to-top
@@ -4137,7 +4671,14 @@ FVARIABLE FTEMP
 \ ( -- )
 \ : RS. RP@ RP0 @ 5-
 \     DO I @ WORD@ DROP -5 +LOOP ;
-: RS. CR CR ." RS. not implemented in gforth" CR ;
+: RTEST RP@ DUP >R RP@ RDROP SWAP - ;
+RTEST CONSTANT RSTEP
+RP@ CONSTANT RBIAS
+: RS. \ --
+  RP@ RBIAS 
+  DO I @ U. RSTEP
+  +LOOP  ." RS. not tested in gforth"  CR ;
+\ https://stackoverflow.com/questions/27409852/show-the-return-stack
 \ --------------------------------------------------------------
 \
 \
@@ -4155,6 +4696,7 @@ FVARIABLE FTEMP
 \ CREATE RTNSAVE E6 NALLOT
 ( " CREATE TEXT RTNSAVE:PORT[1],500" BASICX )
 ( : RTNSAVE " ADDR$['RTNSAVE']" BASIC$ DROP 2- NUMBER DROP 25 + ; )
+: RTNSAVE CR CR ." debug word RTNSAVE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4166,13 +4708,13 @@ FVARIABLE FTEMP
 \   SWAP - DUP RTNSAVE 14 + ! ( Save >RTN* ) ROT ( [ >RTN >RTN* # ] )
 \   NMOVE   ( COPY RTN stack to RTNSAVE)
 \   RTNSAVE 2FB7F ! ; ( Put RTNSAVE addr in 2FB7F )
-: RTNSAVE CR CR ." RTNSAVE not implemented in gforth" CR ;
+: NEWRTN CR CR ." debug word NEWRTN not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
 \                work this out when needed
 \ SSTERROR -----------------------------------------------------
-( SSTERROR: Onerror routine for single step )
+( SSTERROR: On error routine for single step )
 \ : SSTERROR 0 ONERR ! RTNSAVE 19 + @ RP0 ! ( Restore >RBOT )
 \     2F7E4 4N@ DUP 2DUP ( 4 copies of errn )
 \     2EFF > ( >2EFF ? )
@@ -4181,7 +4723,7 @@ FVARIABLE FTEMP
 \     IF R>  ( Go back to ABORT )
 \    ELSE " BEEP" BASICX " 'ERR:'&MSG$(ERRN)"BASIC$ TYPE SP! RP! QUIT
 \    THEN ;
-: SSTERROR CR CR ." SSTERROR not implemented in gforth" CR ;
+: SSTERROR CR CR ." debug word SSTERROR not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4206,7 +4748,7 @@ VARIABLE SSTOUT
 \      LITERAL ONERR !
 \      DOSST 0 ONERR ! SSTOUT @ EXECUTE
 \         ELSE ." ;" 2DROP THEN ;
-: SST CR CR ." SST not implemented in gforth" CR ;
+: SST CR CR ." debug word SST not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4221,7 +4763,7 @@ VARIABLE SSTOUT
 \   DUP 'END ENDA @ RTNSAVE F + !   ( Store word END )
 \   5+ RTNSAVE ! ( Save new I )
 \   NEWRTN ;
-: READYSTEP CR CR ." READYSTEP not implemented in gforth" CR ;
+: READYSTEP CR CR ." debug word READYSTEP not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4232,7 +4774,7 @@ VARIABLE SSTOUT
 \ Used in the form STEP  <wordname>.
 ( STEP: Single step next word.)
 \ : STEP READYSTEP SST ;
-: STEP CR CR ." STEP not implemented in gforth" CR ;
+: STEP CR CR ." debug word STEP not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4242,7 +4784,7 @@ VARIABLE SSTOUT
 \ ( n -- )
 ( BP: Set a breakpoint.  [ Ib -> ] )
 \ : BP 2FB84 ! ;
-: BP CR CR ." BP not implemented in gforth" CR ;
+: BP CR CR ." debug word BP not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4264,7 +4806,7 @@ VARIABLE SSTOUT
 \ ( -- )  
 ( FINISH: Complete execution of an interrupted word )
 \ : FINISH 0 BP CONT ;
-: FINISH CR CR ." FINISH  not implemented in gforth" CR ;
+: FINISH CR CR ." debug word FINISH  not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4280,7 +4822,7 @@ VARIABLE SSTOUT
 ( BREAK: Execute next word, stopping at Ib specified on stack or at the )
 (        final ;  [ I -> ] )
 \ : BREAK READYSTEP BP CONT ;
-: BREAK CR CR ." BREAK not implemented in gforth" CR ;
+: BREAK CR CR ." debug word BREAK not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4297,19 +4839,17 @@ VARIABLE SSTOUT
 \ --------------------------------------------------------------
 \
 \
-\                          use tbd
 \ FSCRATCH -----------------------------------------------------
-( FSCRATCH : Floating point scratch variable )
+( FSCRATCH : Floating point scratch variable used in TIMED )
 FVARIABLE FSCRATCH
 \ --------------------------------------------------------------
 \
 \
-\                       Check this in gforth
 \ FINDW --------------------------------------------------------
 ( FINDW: Get a word from input stream and return its cfa [ -> cfa ] )
-: FINDW BL WORD FIND 0= IF ABORT" Word not found" THEN
-CR CR ." FINDW not tested in gforth" CR 
-;
+\ : FINDW BL WORD FIND 0= IF ABORT" Word not found" THEN ;
+\ part of PRINT and TIMED which is not necessary so far
+\ therefore, need not so far identified
 \ -------------------------------------------------------------
 \
 \
@@ -4331,7 +4871,7 @@ CR CR ." FINDW not tested in gforth" CR
 \ gforth implementation not activ since the output
 \ in a terminal window can be copy/paste into a text
 \ editor and sent to any printer in the network
-: PRINT CR CR ." PRINT not implemented in gforth" CR ;
+: PRINT CR CR ." PRINT not implemented in gforth; make copy/paste of the word output instead and send to the printer" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -4373,17 +4913,39 @@ DECIMAL
 \ according CHATGPT the largest integer on 20bits is 1.048.575
 \
 \ tested 13 Nov Time in SSSS.xx
+\ revisited on 19Juni2024
+\
 \ extract the seconds for today
 ( -- r: SSSS.xx )
 : TIME
 ( -- r: SSSS )
-TIME&DATE DROP DROP DROP 3600 * SWAP 60 * + + S>F
-( r: SSSS -- r: SSSS.xx )
-UTIME #10000 UM/MOD NIP S>F 100.00E0 F/ FP F+ ;
+    TIME&DATE DROP DROP DROP 3600 * SWAP 60 * + +
+    S>F
+( r: SSSS -- f: SSSS.xx )
+    UTIME #10000 UM/MOD NIP
+    S>F 
+    100.0E0 F/
+    \
+    \ Fractional part
+    FDUP          \  rrr.rrr  rrr.rrr
+    FTRUNC        \  rrr.rrr  int(rrr.)
+    F-            \  0.rrr
+    \
+    F+ D_?SINIT
+;
 \ --------------------------------------------------------------
+\
 \
 \                         test this (no rest in stack?)
 \ TIMED --------------------------------------------------------
+\
+\ test EMU71
+\ 2.0 3.0 TIMED PERE12
+\
+\ Param B: 3.00000000000 
+\ Param A: 2.00000000000 
+\ ELLIPSE PERIM = 15.8654395893 1.46000000000  OK { 0 }
+\
 \ Used in the form TIMED xxxx, which displays the execution time of the word xxxx in seconds (to the
 \ nearest . 01 second). For timing floating point words, be aware that TIMED will change the T-register on
 \ input, and the T- and Z- registers on output.
@@ -4393,17 +4955,20 @@ UTIME #10000 UM/MOD NIP S>F 100.00E0 F/ FP F+ ;
 \ : TIMED FINDW FSCRATCH
 \     TIME STO FDROP EXECUTE TIME
 \     FSCRATCH DUP DUP RCL F-
-\     TIME STO FDROP         TIME
+\     TIME STO FDROP TIME
 \     F- RCL F+ F. ;
 \
 : TIMED 
-    TIME TIMEIN F! 
+    TIME FSCRATCH F! 
     ' EXECUTE 
-    TIME TIMEIN F@ F- 
+    TIME FSCRATCH F@ F- 1.0E5 F/ D_?SINIT
     CR ." execution time: " 
-    F. ." sec." CR
-    ." TIMED not tested in gforth" CR
-;
+    F. ." sec." CR ;
+\
+\ test gforth
+\ 1.0E 9.0E TIMED AGM 
+\ execution time: 0.0099999905 sec.
+
 \ BASE !
 \ --------------------------------------------------------------
 \

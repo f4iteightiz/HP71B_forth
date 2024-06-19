@@ -24,6 +24,7 @@
 (   2023 07 14 creation                                        )
 (   2023 11 01 upload internet                                 )
 (   2023 12 12 STRDUMP CELLV RES2CHR added                     )
+(   2024 06 19 CHARV added                                     )
 (                                                              )
 ( status of the words commented in this file                   )
 (  1. word to be worked out                                    )
@@ -68,9 +69,12 @@
 ( CELLV ------------------------------------------------------ )
 ( Identify if the system is EMU71 / HP71B or a PC              )
 ( CELLV will be 5 on HP71B and 8 on PC 64 bits                 )
-( eventually create later a CHARV , too                        )
-VARIABLE CELLV
-HERE 0 , HERE SWAP - CELLV !
+( will allow the same forth will work on gforth and Hp71b      )
+( could be removed to save memory on HP71B                     )
+\ VARIABLE CELLV
+\ VARIABLE CHARV
+HERE 0 , HERE SWAP - VALUE CELLV
+HERE 0 C, HERE SWAP - VALUE CHARV
 ( ------------------------------------------------------------ )
 ( )
 ( )
@@ -200,6 +204,12 @@ RES2CHR 27 CHR$ S<& 69 CHR$ S<& 2DROP
 ( ------------------------------------------------------------ )
 ( )
 ( )
+( X<>Z ------------------------------------------------------- )
+( T Z Y X -- T X Y Z )
+: X<>Z  X<>Y RDN X<>Y RUP X<>Y ;
+( ------------------------------------------------------------ )
+( )
+( )
 ( AT-XY ------------------------------------------------------ )
 ( tested standalone on emulator                                )
 ( Put the curser at position x y                               )
@@ -238,7 +248,7 @@ RES2CHR 27 CHR$ S<& 69 CHR$ S<& 2DROP
 (                    mean    : CELLS 8 * ;   on gforth PC      )
 ( on HP71B emulator HERE 0 , HERE SWAP - .   5 ok              )
 ( : HP_CELLS 5 * ;   previous version                          )
-: CELLS CELLV @ * ;                                 
+: CELLS CELLV * ;                                 
 ( ------------------------------------------------------------ )
 ( )
 ( )
@@ -264,8 +274,10 @@ RES2CHR 27 CHR$ S<& 69 CHR$ S<& 2DROP
 ( HERE 0 c, HERE SWAP - .  2 ok on HP71B                       )
 ( : HP_CHAR+  2+  ;    previous version                        )
 ( : HP_CHAR-  2-  ;    previous version                        )
-: CHAR+  CELLV @ 5 = IF 2+ ELSE 1+ THEN ;                 
-: CHAR-  CELLV @ 5 = IF 2- ELSE 1- THEN ;                 
+\ : CHAR+  CELLV 5 = IF 2+ ELSE 1+ THEN ;                 
+\ : CHAR-  CELLV 5 = IF 2- ELSE 1- THEN ;                 
+: CHAR+  CHARV + ;                 
+: CHAR-  CHARV - ;                 
 ( ------------------------------------------------------------ )
 ( )
 ( )
