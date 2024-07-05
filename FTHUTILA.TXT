@@ -1,0 +1,191 @@
+       FORTH
+*                                FTHUTILA
+*                      FORTH Utilities: Primitives
+SAVEFP EQU #E717A           FORTH entry points:  Save FORTH pointers
+GETFP  EQU #E71A5                                Recover FORTH pointers
+STKLFT EQU #E7320                                Lift floating-point stack
+NEXT   EQU #E71CA                                Inner loop
+NEXT00 EQU #E71DD                                Call inner loop
+DOATN  EQU #E7204                                ATTN/poll check
+CMPT   EQU #125B2          System entry points:  Read time
+IDIV   EQU #0EC7B                                Full word integer divide
+HXDCW  EQU #0ECB4                                Hex to decimal
+FLOAT  EQU #1B322                                Integer to floating point
+CLRFRC EQU #0C6F4                                Clear fractional part
+DV2-12 EQU #0C4A8                                12-digit divide
+
+* TIME : Read system clock in seconds; return result to X
+       WORD 'TIME'
+       GOSBVL SAVEFP
+       GOSBVL STKLFT
+       P=     5              *** workaround for bug 1084
+       GOSBVL CMPT           C(W) = Time in hex 512ths of a second
+*
+ACLC24 A=C W                 Unsupported entry point. 12B79
+       C=0 W
+       P= 4
+       LCHEX 2A3             C = 2A30000
+       D=C W                 D = 2A30000 ( 24 hours in 512th's of a second )
+*
+       GOSBVL IDIV
+       GOSBVL HXDCW
+       A=C W
+       GOSBVL FLOAT
+       C=0 W
+       P= 12
+       LCHEX 512             C = 5.12
+       GOSBVL DV2-12         A,B = Time*100
+       GOSBVL CLRFRC         A,B = IP(Time*100)
+       GOSUB TRUNCC
+       C=C-1 X
+       C=C-1 X               C = TIME
+       SETHEX
+       D0=(5) #2FBD0         X-Register
+       DAT0=C W              X = TIME
+       GOSBVL GETFP
+       RTNCC
+
+TRUNCC P= 0                  unsupported system utility at 12B4A
+       LCHEX 00499           rounds 15-digit A,B to 12-digit C
+       ?A<=C A
+       GOYES TRUN20
+       C=-C A
+       ?A>=C A
+       GOYES TRUN20
+       C=0 W
+       A=A+A A
+       GOC TRUN10
+       LCHEX F00
+       C=A S
+TRUN10 RTNCC
+TRUN20 C=A W
+       C=B M
+       RTNCC
+*
+       WORD 'DOSST'
+* Single-step primitive
+       GOSUB NEWENV         Switch to temp. environment
+*
+*
+* 4. Run inner loop once
+MORE   D0=A                 D0 = I*
+NEXT10 GOSBVL NEXT1         Do 1 inner loop
+*
+* 5. Are we back to original (I) word?
+NEXT11 AD0EX                A = I*'
+       D0=(5) #2FB7F
+       C=DAT0 A             C = RTNSAVE
+       CD0EX                D0 = RTNSAVE
+       D0=D0+ #A            D0= RTNSAVE+A
+       C=DAT0 A             C = CFA
+       ?A<C A               I*' < CFA?
+       GOYES MORE           Do another cycle
+       D0=D0+ 5             D0 = RTNSAVE+F
+       C=DAT0 A             C = END
+       ?A>C A               Is I*' past END?
+       GOYES MORE           Do another cycle
+*
+* 6. Return to normal execution.  Save I*, restore I
+DONE1  D0=D0- #F             D0 = RTNSAVE
+DONE2  DAT0=A A             RTNSAVE = I*
+       D0=D0+ 5             D0 = RTNSAVE+5
+       A=DAT0 A             A = Orig I
+*
+* 7. Switch >RTN
+       D0=D0+ #F            D0 = RTNSAVE+14
+       C=DAT0 A             C = >RTN
+       CBEX A               B(A) = >RTN; C = >RTN*
+       DAT0=C A             RTNSAVE+14 = >RTN*
+*
+* 8. Restore >RBOT
+       D0=D0+ 5             D0 = RTNSAVE+19
+       C=DAT0 A             C = Orig >RBOT
+       D0=(5) #2FB16        D0 = RP0
+       DAT0=C A             RP0 = >RBOT
+       AD0EX                D0 = I
+       GOVLNG NEXT00        Exit back to word that called DOSST
+*
+*  Switch to new environment.  1.  Switch I
+NEWENV AD0EX                A = I
+       D0=(5) #2FB7F        
+       C=DAT0 A             C = RTNSAVE
+       CD0EX                D0 = RTNSAVE
+       C=DAT0 A             C = I*
+       D0=D0+ 5             D0 = RTNSAVE+5
+       DAT0=A A             RTNSAVE+5 = I
+*
+* 2. Switch >RTN
+       D0=D0+ #F            D0 = RTNSAVE+14
+       A=DAT0 A             A = >RTN*
+       ABEX A               A = >RTN, B = >RTN*
+       DAT0=A A             RTNSAVE+14 = >RTN
+*
+* 3. Switch >RBOT
+       R0=C A               R0 = I*
+       CD0EX                C = RTNSAVE+14
+       D0=(5) #2FB16        D0 = RP0
+       A=DAT0 A             A = >RBOT
+       CD0EX                C = RP0, D0 = RTNSAVE+A
+       D0=D0+ 5             D0 = RTNSAVE+19
+       DAT0=A A             RTNSAVE+19 = >RBOT
+       P= 0
+       AD0EX                A = RTNSAVE+14
+       CD0EX                D0 = RP0
+       LC(5) #E6-#19        C = (RTNSAVE+E6)-(RTNSAVE+19)
+       C=C+A A              C = RTNSAVE+E6
+       DAT0=C A             RP0 = RTNSAVE+E6
+       A=R0 A               A = I*
+       RTN
+*
+* Inner Loop
+NEXT1  A=DAT0 A               C = WA
+       D0=D0+ 5               Increment I*
+       R0=A A                 R0 = WA
+       AD0EX                  D0 = WA; A = I*
+       C=DAT0 A               C = @WA
+       D0=(5) #E71ED          D0 = SEMI
+       AD0EX                  A = SEMI; D0 = I*
+       ?A=C A                 Is the next word SEMI?
+       GOYES MYSEMI           Go to local SEMI 
+       A=R0 A                 A = WA
+       RSTK=C                 Push @WA onto RTNSTK
+       RTN                    Go execute @WA, rtn to NEXT 11
+*
+* Local SEMI
+MYSEMI GOSBVL DOATN
+       C=B A                  C = >RTN*
+       CD0EX                  D0 = >RTN*; C = I*
+       A=DAT0 A               A = I*'
+       D0=D0+ 5               Pop RSTK
+       AD0EX                  D0 = I*'; A = >RTN*
+       B=A A                  B = >RTN*
+       RTNCC
+*
+*
+*  BRRUN:  Execute a word up to breakpoint stored in 2FB7F or to final ;
+       WORD 'BRRUN'
+       GOSUB NEWENV         A = I*
+       GOTO NEXT22
+* Run inner loop once
+MORE2  D0=A                 D0 = I*
+NEXT20 GOSUB NEXT1          Do one inner loop
+NEXT21 AD0EX                A = I*
+       D0=(5) #2FB84  
+       C=DAT0 A             C = Ib
+       ?C=A A               I* = Ib ?
+       GOYES DONE3          Then exit
+NEXT22 D0=(5) #2FB7F         
+       C=DAT0 A             C(A)-> RTNSAVE
+       CD0EX                D0-> RTNSAVE
+       D0=D0+ #F            D0-> RTNSAVE+F
+       C=DAT0 A             C(A)-> END
+       CD0EX                D0-> END
+       D0=D0- 5             D0-> final ;
+       CD0EX                C(A)-> final ;
+       ?A#C A               Is I* # final ; ?
+       GOYES MORE2          Do another cycle
+DONE3  D0=(5) #2FB7F     
+       C=DAT0 A             C = RTNSAVE
+       CD0EX                D0 = RTNSAVE
+       GOTO DONE2           Go back to orig. environment
+       END
