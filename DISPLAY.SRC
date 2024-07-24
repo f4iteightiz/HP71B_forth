@@ -1,0 +1,4 @@
+: FS. RUP ." T: " F. RUP CR ." Z: " F. RUP CR ." Y: " F. 
+RUP CR ." X: " F. CR X<>L ." L: " F. X<>L CR ;
+: FV. DUP X<> ." Value: " F. X<> CR ;
+
