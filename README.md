@@ -64,3 +64,10 @@ Example 3: SNAKE  ( 2D game with a snake eating an apple then becoming longer )
 >0 PRIMARY !
 >D-D              ( screen will be the output )
 >SSNAKE           ( start ; see the result in the SnakeHP file )
+
+Example 4: DISPLAY.SRC (forth words for displaying informations)
+FV. = Float variable view. Use FVAR1 FV. will show the content of the FVARIABLE FVAR1 without stack movement.
+FS. = Floaft stack view. FS. will show the content of the float stack without modification.
+
+Example 5: MAFO.TXT
+Forth words in assembler for stack and float variable algebra (similar to Warpcore-Module functions of the HP41). X<>Z X<>T.. RC* ST/ ..
