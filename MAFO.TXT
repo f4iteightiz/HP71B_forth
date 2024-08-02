@@ -3,70 +3,125 @@
 * columns..
 * 1:label  8:mnemonic  15:modifier  from 24:comments
 *
-* FORTH entry points:
-CHS    EQU #E1518            change X sign; dont change LastX
-NUMST  EQU #E1718            GET X INTO (A,B); L = X
-FEND   EQU #E08E9            PUTABX,GETFP
-PUTABX EQU #E72F5            Put (A,B) into X, .. GETFP
-GETX   EQU #E728A            Put X into (A,B) 
-GETX+L EQU #E72DF            Put X into (A,B) and X in L
-SAVEFP EQU #E717A            save Forth pointer
-GETFP  EQU #E71A5            restore Forth pointers
 * System entry points: see 14-1 of IMS Vol 1
-UMODES EQU #0BDB1            set the modes
-ADDONE EQU #0C330            add 1 to X = (A,B) (AD15S..)
-IN2-15 EQU #0C33E            inverse X (A,B)
-AD2-12 EQU #0C35F            12 digit add = (A) + (C)
-AD2-15 EQU #0C363            15-digit add
-MP2-12 EQU #0C432            12 digit multiply (A) * (C), result in (A,B)
-MP2-15 EQU #0C43A            15-digit multiply
-DV2-12 EQU #0C4A8            12-digit divise (A) / (C) result in (A,B)
-DV2-15 EQU #0C4AC            15-digit divise (A,B) / (C,D) in (A,B)
-* DV15S  EQU #0C4B2            
-SPLITA EQU #0C6BF            Extend (A) into (A,B)
-SPLTAC EQU #0C934            Extend (A) and (C) into (A,B) and (C,D)
-SPLITC EQU #0C940            Extend (C) into (C,D)
-RES12  EQU #0C994            Reduce (A,B) into (C)
-RESD1  EQU #0E1EE            like RES12, dont alter D1
-* addresses
-* MTHSTK EQU #2F599            data stack
-OL     EQU #2FBC0            L address
-OX     EQU #2FBD0            X address
-OY     EQU #2FBE0            Y address
-OZ     EQU #2FBF0            Z address
-OT     EQU #2FC00            T address
+=UMODES EQU #0BDB1            set the modes
+=ARGERR EQU #0BF19            for report invalid arg error
+=PI     EQU #0C000            PI 12digit form (LCHEX) 
+=SUBONE EQU #0C327            substract 1 to X (A,B) page 1392 of idsv3
+=ADDONE EQU #0C330            add 1 to X = (A,B) (AD15S..)
+=IN2-15 EQU #0C33E            1/X where X=(A,B)
+=X/Y15  EQU #0C34F            X/Y where X=(A,B) and Y=(C,D)
+=AD2-12 EQU #0C35F            12 digit add = (A) + (C)
+=AD2-15 EQU #0C363            15-digit add = (A,B) + (C,D) 
+=AD15S  EQU #0C369            same + SB reset page 1394 of idsv3
+=MP2-12 EQU #0C432            12 digit * (A) * (C)
+=MP1-12 EQU #0C436            12 digit * (A,B) * (C)
+=MP2-15 EQU #0C43A            15-digit multiply (A,B) * (C,D)
+=MP15S  EQU #0C440            15-digit multiply (A,B) * (C,D)
+=MULTF  EQU #0C446            ?? Multiply float
 *
-* 1TOFV : initialize float variable to 1. tested 17 July 2024
-* FVAR1 1TOFV .. will put 1 into the FVARIABLE FVAR1
-       WORD '1TOFV'
-       GOSBVL SAVEFP
-       C=DAT1 A              copy data at address in D1 into C(A)
-       CD0EX                 exchange C(A) with D0 (the instruction pointer)
-       A=0    W
-       P=     14
-       A=A+1  P
-       DAT0=A W
-       D0=C
-       GOSBVL GETFP
-       D1=D1+ 5
-       RTNCC
+=DV2-12 EQU #0C4A8            12-digit divise
+=DV2-15 EQU #0C4AC            15-digit divise
+=DV15S  EQU #0C4B2            15-digit divise SB not cleared
+*
+=SPLITA EQU #0C6BF            Extend (A) into (A,B)
+=CLRFRC EQU #0C6F4            (A,B) to (A,B) w/o fractio part page 1409
+=SPLTAC EQU #0C934            Extend (A) and (C) into (A,B) and (C,D)
+=SPLITC EQU #0C940            Extend (C) into (C,D)
+=uRES12 EQU #0C994            Reduce (A,B) into (C)
+=NRM12  EQU #0C9BB            ?? Round to 12 sig digits
+*
+=YX2-12 EQU #0D274            Y^X & Reg 0 2 3 modified
+=STAB1  EQU #0D3D9            Store AB into scratch1 (R0,R1)
+=EXAB1  EQU #0D3E7            Exch AB and scratch1
+=RCCD1  EQU #0D3F1            Put scratch into CD
+=STAB2  EQU #0D400            Store AB into scratch2 (R2,R3)
+=EXAB2  EQU #0D40E            Exch AB and scratch2
+=RCCD2  EQU #0D41C            Put scratch2 into CD
+=STCD2  EQU #0D427            Store AB into scratch2 (R2,R3)
+=uTEST  EQU #0D435            User real comparison Page 1484..6
+*
+=TST15  EQU #0D47A            Compare numbers 15dg AB vs CD
+* P has the cell# assoClated width the nUMber pair, arg's in 15-dig forM unchanged.
+* page 1486 of idsv3
+*
+=MAKEPI EQU #0D6F1            Put PI into (C,D)
+=TWO*   EQU #0DB38            Dbl precision doubler
+=PI/2   EQU #0DB77            load PI/2 into (C,D)
+*
+=SB15S  EQU #0E19A            substraction 15 digits (A,B) = (A,B) - (C,D) . needs SETDEC before
+=DMP15S EQU #0E1B3            SETDEC then MP15S
+=RESD1  EQU #0E1EE            like RES12, dont alter D1
+=SPLTAX EQU #0E62B            SETDEC, Extend (A) into (A,B) Page 1585
+=SIGTST EQU #0E636            Handle signal NaN Page 1585 
+=BP     EQU #0EADF            make beep float A HZ Float C duration sec
+*
+=POP1R  EQU #0E8FD            RTN of POP1N #0BD1C Seite 1361
+*                             take 1 arg off mathstack
+*
+=STSCR  EQU #0E92C            Push (A,B) into top math scratch stack page 1607
+*
+=RCLW1  EQU #0E981            recall 1 top math stack entry page 1610
+* move (AB) to (CD) then recal into (AB)
+*
+=FNRTN4 EQU #0F238            function return, page 1679
+=FLOAT  EQU #1B322            change integ to 12dig float in A
+*
+=MTHSTK EQU #2F599            data stack
+*
+=FUNCD0 EQU #2F8BB            function scratch RAM allocation 5 nibbles
+*                             see FUNCD1 FUNCR0..R1 too page 3089
+*
+=OL     EQU #2FBC0            L address
+=OX     EQU #2FBD0            X address
+=OY     EQU #2FBE0            Y address
+=OZ     EQU #2FBF0            Z address
+=OT     EQU #2FC00            T address
+*
+* FORTH entry points:
+=FEND   EQU #E08E9            PUTABX,GETFP
+=CHS    EQU #E1518            change X sign; dont change LastX
+=NUMST  EQU #E1718            GET X INTO (A,B); L = X
+=MOD    EQU #E1718            modulo
+*
+=OVER   EQU #E2538            (n1 n2 -- n1 n2 n1)
+* D1=D1+ 5
+* C=DAT1 A 
+* D1=D1- 10
+* DAT1=C A
+* RTNCC
+* 
+=SAVEFP EQU #E717A            save Forth pointer
+=GETFP  EQU #E71A5            restore Forth pointers
+=PUTABX EQU #E72F5            Put (A,B) into X, .. GETFP
+=GETX   EQU #E728A            Put X into (A,B) 
+=GETX+L EQU #E72DF            Put X into (A,B) and X in L
+*
+* general remarks:
+*   RES12 MODES GETX+L using D1 therefore D1 has to be saved before its use
+*   SETDEC has to be used before most of math functions
+*   ADDONE and SUBONE has a warning message WRN; workaround so far not found
+*   SAVEFP and GETFP: check where really necessary for optimizing code
+*   X<>L and others could be deleted because it is the same like L X<>
+*     or use L X <F>
+*   GOSBVL NUMST is making issues with GETX+L where sign is checked. Avoid sometimes.
 *
 * CLFV : initialize float variable to zero. tested 17 July 2024
 * FVAR1 CLFV .. will put 0 into the FVARIABLE FVAR1
        WORD 'CLFV'
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP         save pointers: CPU reg, D0, D1
        C=DAT1 A              copy data at address in D1 into C(A)
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
        A=0    W
        DAT0=A W
        D0=C
-       GOSBVL GETFP
+       GOSBVL =GETFP
        D1=D1+ 5
        RTNCC
 *
 * CLX : set X to zero. LastX not modified (see HP41). tested 15july24
        WORD 'CLX'
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP
        P=     0
        LC(5)  OX             put X-address into field A of register C
 *                               low order 5 nibbles
@@ -74,12 +129,46 @@ OT     EQU #2FC00            T address
        A=0    W
        DAT0=A W
        D0=C
-       GOSBVL GETFP
+       GOSBVL =GETFP
        RTNCC
 *
-* 1TOX : set X to one. no stack move. LastX not modified. tested 17 July 2024
+*
+* CLST : set X Y Z T to zero. LastX not modified (see HP41).
+* testes 02 Aug 2024
+       WORD 'CLST'
+       GOSBVL =SAVEFP
+       P=     0
+       LC(5)  =OX
+       CD0EX
+       A=0    W
+       DAT0=A W              X set to zero
+       D0=D0+ 16
+       DAT0=A W              Y set to zero
+       D0=D0+ 16
+       DAT0=A W              Z set to zero
+       D0=D0+ 16
+       DAT0=A W              T set to zero
+       GOSBVL =GETFP
+       RTNCC
+*
+*
+* 1TOFV : initialize float variable to 1. tested 26 July 2024
+* FVAR1 1TOFV .. will put 1 into the FVARIABLE FVAR1
+       WORD '1TOFV'
+       C=DAT1 A              copy data at address in D1 into C(A)
+       CD0EX                 exchange C(A) with D0 (the instruction pointer)
+       A=0    W              clear A
+       P=     14
+       A=A+1  P              put 1 at P=14 of the variable
+       DAT0=A W
+       CD0EX                 restore D0 the instruction pointer
+       D1=D1+ 5              throw the D1 entry (seen in integer stack) away
+       RTNCC
+*
+*
+* 1TOX : put 1 into X . no stack move. LastX not modified. tested 17 July 2024
        WORD '1TOX'
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP
        P=     0
        LC(5)  OX             put X-address into field A of register C
 *                               low order 5 nibbles
@@ -89,52 +178,100 @@ OT     EQU #2FC00            T address
        A=A+1  P
        DAT0=A W
        D0=C
-       GOSBVL GETFP
+       GOSBVL =GETFP
        RTNCC
+*
+*
+* X-2 : substract 2 to X ; X transfered to LASTX.
+* next: test if 2x SUBONE works 
+       WORD 'X-2'
+       GOSBVL =NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
+*       GOSBVL =SUBONE
+*       GOSBVL =SUBONE        WRN: appear, therefore better next
+       C=0    W
+       C=-C-1 S
+       D=0    W
+       P=     14
+       D=D+1  P              
+       D=D+1  P              2 in mantissa of D (negativ A(A,B))
+       GOSBVL =AD2-15
+*
+       GOSBVL =PUTABX
+       RTNCC
+*
+*
+* X-1 : substract 1 to X ; X transfered to LASTX.
+* next: test if 1x SUBONE works 
+       WORD 'X-1'
+       GOSBVL =NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
+*       GOSBVL =SUBONE        WRN: appear, therefore better next
+       C=0    W
+       C=-C-1 S
+       D=0    W
+       P=     14
+       D=D+1  P              1 in Register D
+       GOSBVL AD2-15
+       GOSBVL =PUTABX
+       RTNCC
+*
+*
+* X+1 : add 1 to X ; X transfered to LASTX.
+* next: test if 1x ADDONE works 
+       WORD 'X+1'
+       GOSBVL =NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
+*       GOSBVL =ADDONE         WRN: appear, therefore better next
+       C=0    W
+       D=0    W
+       P=     14
+       D=D+1  P              1 in Register B
+       GOSBVL =AD2-15
+       GOSBVL =PUTABX
+       RTNCC
+*
+*
+* X+2 : add 2 to X ; X transfered to LASTX. Tested 10 July 2024
+* next: test if 2x ADDONE works 
+       WORD 'X+2'
+       GOSBVL =NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
+       C=0    W
+       D=0    W
+       P=     14
+       D=D+1  P              
+       D=D+1  P              2 in mantissa of D (negativ)
+       GOSBVL =AD2-15
+       GOSBVL =PUTABX
+       RTNCC
+*
 *
 * X*2 : multiply X by 2; X transfered to LASTX. Tested 11July2024
        WORD 'X*2'
-       GOSBVL NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
+       GOSBVL =NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
        C=B    W
        D=C    W
        C=A    W              copy (A,B) to (C,D)
-       GOSBVL AD2-15         (A,B) + (C,D) and put result in (A,B) = X+X = 2*X
-       GOSBVL PUTABX
+       GOSBVL =AD2-15         (A,B) + (C,D) and put result in (A,B) = X+X = 2*X
+       GOSBVL =PUTABX
        RTNCC
+*
 *
 * X/2 : divise X by 2; X transfered to LASTX. Tested 10July2024
        WORD 'X/2'
-       GOSBVL NUMST          GET X INTO A(A,B), uMODES;SAVEFP;GETX+L
+       GOSBVL =NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
        C=0    W
        D=C    W
        P=     14
        D=D+1  P
        D=D+1  P              2 in Register D
-       GOSBVL DV2-15         (A,B) / (C,D) = and result in (A,B)
-       GOSBVL PUTABX
+       GOSBVL =DV2-15         (A,B) / (C,D) = and result in (A,B)
+       GOSBVL =PUTABX
        RTNCC
 *
-* X+2 : add 2 to X ; X transfered to LASTX. Tested 10 July 2024
-* next: test if 2x ADDONE works 
-       WORD 'X+2'
-       GOSBVL NUMST          GET X INTO A(A,B), uMODES;SAVEFP;GETX+L
-       C=B    W
-       D=C    W
-       C=A    W              copy (A,B) to (C,D)
-       A=0    W
-       B=A    W
-       P=     14
-       B=B+1  P
-       B=B+1  P              2 in Register B
-       GOSBVL AD2-15         (A,B) + (C,D) and result in (A,B) = 2+X
-       GOSBVL PUTABX
-       RTNCC
 *
 * X<> exchange the value in the variable with the value in X
 *       use: FVAR1 X<>   tested 15july2024
        WORD 'X<>'
        P=     0
-       LC(5)  OX             put X-address into C(A)
+       LC(5)  =OX             put X-address into C(A)
        CD0EX                 exchange data pointer address D0 with C(A)
        R2=C                  save D0
        A=DAT0 W              A = value of X from its address in C(A)
@@ -144,7 +281,7 @@ OT     EQU #2FC00            T address
        A=DAT0 W              copy data at address in D0 (in C(A)) into W in A
        R1=A                  R1 = Reg value
        P=     0
-       LC(5)  OX             put X-address into C(A)
+       LC(5)  =OX             put X-address into C(A)
        CD0EX                 exchange data pointer address D0 with C(A)
        A=R1
        DAT0=A W              X has now value of Reg
@@ -157,10 +294,11 @@ OT     EQU #2FC00            T address
        D1=D1+ 5              return nothing on data stack
        RTNCC
 *
+*
 * X<>Z exchange the HP41 registers, similar to X<>Y. tested 12 July 2024
        WORD 'X<>Z'
        P=     0
-       LC(5)  OX             put X-address into field A of register C
+       LC(5)  =OX             put X-address into field A of register C
 *                               low order 5 nibbles
        CD0EX                 put data pointer D0 into C(A)
        R1=C                  save D0 into R1
@@ -176,10 +314,11 @@ OT     EQU #2FC00            T address
        D0=C                  restore D0
        RTNCC
 *
+*
 * X<>T exchange the HP41 registers, tested 12 July 2024
        WORD 'X<>T'
        P=     0
-       LC(5)  OX             put X-address into field A of register C
+       LC(5)  =OX             put X-address into field A of register C
 *                               low order 5 nibbles
        CD0EX                 put data pointer D0 into C(A)
        R1=C                  save D0 into R1
@@ -197,10 +336,11 @@ OT     EQU #2FC00            T address
        D0=C                  restore D0
        RTNCC
 *
+*
 * X<>L exchange the HP41 registers, tested 12 July 2024
        WORD 'X<>L'
        P=     0
-       LC(5)  OX             put X-address into field A of register C
+       LC(5)  =OX             put X-address into field A of register C
 *                               low order 5 nibbles
        CD0EX                 put data pointer D0 into C(A)
        R1=C                  save D0 into R1
@@ -214,11 +354,12 @@ OT     EQU #2FC00            T address
        D0=C                  restore D0(A) from C(A)
        RTNCC
 *
+*
 * Y<> exchange the value in the variable with the value in Y
 *       use: FVAR1 Y<>
        WORD 'Y<>'
        P=     0
-       LC(5)  OY
+       LC(5)  =OY
        CD0EX
        R2=C
        A=DAT0 W
@@ -228,7 +369,7 @@ OT     EQU #2FC00            T address
        A=DAT0 W
        R1=A
        P=     0
-       LC(5)  OY
+       LC(5)  =OY
        CD0EX
        A=R1
        DAT0=A W
@@ -241,10 +382,11 @@ OT     EQU #2FC00            T address
        D1=D1+ 5
        RTNCC
 *
+*
 * Y<>Z exchange the HP41 registers
        WORD 'Y<>Z'
        P=     0
-       LC(5)  OY             put Y-address into field A of register C
+       LC(5)  =OY             put Y-address into field A of register C
 *                               low order 5 nibbles C(A)
        CD0EX                 exchange data pointer address D0 with C(A)
        R1=C                  save D0 into R1
@@ -258,10 +400,11 @@ OT     EQU #2FC00            T address
        D0=C                  restore D0
        RTNCC
 *
+*
 * Y<>T exchange the HP41 registers tested 17 July 2024
        WORD 'Y<>T'
        P=     0
-       LC(5)  OY
+       LC(5)  =OY
        CD0EX
        R1=C
        C=DAT0 W
@@ -275,11 +418,12 @@ OT     EQU #2FC00            T address
        C=R1
        D0=C
        RTNCC
+*
 *
 * Y<>L exchange the HP41 registers tested 17 July 2024
        WORD 'Y<>L'
        P=     0
-       LC(5)  OY
+       LC(5)  =OY
        CD0EX
        R1=C
        C=DAT0 W
@@ -294,11 +438,12 @@ OT     EQU #2FC00            T address
        D0=C
        RTNCC
 *
+*
 * Z<> exchange the value in the variable with the value in Z tested 17 July 2024
-*       use: FVAR1 Z<>
+* use: FVAR1 Z<>
        WORD 'Z<>'
        P=     0
-       LC(5)  OZ
+       LC(5)  =OZ
        CD0EX
        R2=C
        A=DAT0 W
@@ -308,7 +453,7 @@ OT     EQU #2FC00            T address
        A=DAT0 W
        R1=A
        P=     0
-       LC(5)  OZ
+       LC(5)  =OZ
        CD0EX
        A=R1
        DAT0=A W
@@ -321,10 +466,11 @@ OT     EQU #2FC00            T address
        D1=D1+ 5
        RTNCC
 *
+*
 * Z<>T exchange the HP41 registers, tested July 11 2024
        WORD 'Z<>T'
        P=     0
-       LC(5)  OZ
+       LC(5)  =OZ
        CD0EX
        R1=C
        C=DAT0 W
@@ -337,10 +483,11 @@ OT     EQU #2FC00            T address
        D0=C
        RTNCC
 *
+*
 * Z<>L exchange the HP41 registers tested 17 July 2024
        WORD 'Z<>L'
        P=     0
-       LC(5)  OZ
+       LC(5)  =OZ
        CD0EX
        R1=C
        C=DAT0 W
@@ -356,12 +503,13 @@ OT     EQU #2FC00            T address
        C=R1
        D0=C
        RTNCC
+*
 *
 * T<> exchange the value in the variable with the value in T. tested 17 July 2024
 *       use: FVAR1 T<>
        WORD 'T<>'
        P=     0
-       LC(5)  OT
+       LC(5)  =OT
        CD0EX
        R2=C
        A=DAT0 W
@@ -371,7 +519,7 @@ OT     EQU #2FC00            T address
        A=DAT0 W
        R1=A
        P=     0
-       LC(5)  OT
+       LC(5)  =OT
        CD0EX
        A=R1
        DAT0=A W
@@ -384,10 +532,11 @@ OT     EQU #2FC00            T address
        D1=D1+ 5
        RTNCC
 *
+*
 * T<>L exchange the HP41 registers. tested 17 July 2024
        WORD 'T<>L'
        P=     0
-       LC(5)  OT
+       LC(5)  =OT
        CD0EX
        R1=C
        C=DAT0 W
@@ -406,11 +555,12 @@ OT     EQU #2FC00            T address
        D0=C
        RTNCC
 *
+*
 * L<> exchange the value in the variable with the value in L tested 17 July 2024
 *       use: FVAR1 L<>
        WORD 'L<>'
        P=     0
-       LC(5)  OL
+       LC(5)  =OL
        CD0EX
        R2=C
        A=DAT0 W
@@ -420,7 +570,7 @@ OT     EQU #2FC00            T address
        A=DAT0 W
        R1=A
        P=     0
-       LC(5)  OL
+       LC(5)  =OL
        CD0EX
        A=R1
        DAT0=A W
@@ -433,11 +583,38 @@ OT     EQU #2FC00            T address
        D1=D1+ 5
        RTNCC
 *
+*
+* <F> exchange the values of the 2 float variables
+* tested 26 July 2024
+* use: FVAR1 FVAR2 <F> 
+       WORD '<F>'
+       GOSBVL =SAVEFP         save pointers: CPU reg, D0, D1
+       C=DAT1 A              copy data at 1st address in D1 into C(A)
+       CD0EX                 exchange C(A) with D0
+       A=DAT0 W              value into A
+       R0=A                  R0 = Value1
+       D1=D1+ 5
+       C=DAT1 A              copy data at 2nd address in D1 into C(A)
+       CD0EX
+       A=DAT0 W
+       R1=A                  R1 = value2
+       A=R0
+       DAT0=A W              Store value1 at addr2
+       D1=D1- 5
+       C=DAT1 A
+       CD0EX
+       A=R1
+       DAT0=A W              Store value2 at addr1
+       GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
+       D1=D1+ 10             return nothing on data stack
+       RTNCC
+*
+*
 * ST- substract X value in the reg address, no lastX, tested 13 07 2024
 *      use: FVARNAME1 ST- will substract the X value within FVARNAME1
        WORD 'ST-'
-       GOSBVL CHS            change sign of X for later calc
-       GOSBVL SAVEFP
+       GOSBVL =CHS            change sign of X for later calc
+       GOSBVL =SAVEFP         save pointers: CPU reg, D0, D1
        C=DAT1 A              copy data at address in D1 into C(A) = field A of reg C
 *                            D1 is the data pointer
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
@@ -446,33 +623,33 @@ OT     EQU #2FC00            T address
        R0=A                  R0: value of data at address for later
 *
        P=     0
-       LC(5)  OX             load of X register addr into C(A)
+       LC(5)  =OX             load of X register addr into C(A)
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
        A=DAT0 W              copy data of X into A
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
        C=A    W              (-XValue) into (C)
        A=R0                  (RegValue) into (A)
-       GOSBVL SPLTAC         (A) in (A,B) and (C) in (C,D)
-       GOSBVL AD2-15         (A,B) + (C,D) and result in (A,B) = RegVal -X
-       GOSBVL RES12          (A,B) into (C)
+       GOSBVL =SPLTAC         (A) in (A,B) and (C) in (C,D)
+       GOSBVL =AD2-15         (A,B) + (C,D) and result in (A,B) = RegVal -X
+       GOSBVL =uRES12          (A,B) into (C)
        A=C    W              put C into A
        C=DAT1 A              copy data at address in D1 into C(A)
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
        DAT0=A W              Write value (OrgRegVal -X) to reg back
        D0=C
-       GOSBVL GETFP
-       GOSBVL CHS            change back from -X to X
+       GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
+       GOSBVL =CHS            change back from -X to X
        D1=D1+ 5              return nothing on data stack
        RTNCC
+*
 *
 * ST+ add X value in the reg address, no lastX
 *      use: FVARNAME1 ST+ will add the X value within FVARNAME1
 * released 23 july 2024
        WORD 'ST+'
-*
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP
        P=     0
-       LC(5)  OX
+       LC(5)  =OX
        CD0EX
        R2=C                  R2=D0
        A=DAT0 W              A=X
@@ -487,26 +664,26 @@ OT     EQU #2FC00            T address
        C=B    W              C=X
        A=R0                  A=RegValue
        SETDEC
-       GOSBVL AD2-12
+       GOSBVL =AD2-12
        SETHEX
-       GOSBVL RESD1
+       GOSBVL =RESD1
        A=C    W
 *
        C=R1
        CD0EX
        DAT0=A W
-       GOSBVL GETFP
+       GOSBVL =GETFP
        D1=D1+ 5
        RTNCC
+*
 *
 * ST* multiply X value into the reg address, no lastX
 * use: FVARNAME1 ST* will multiply FVARNAME1 by X
 * released 24 july 2024
        WORD 'ST*'
-*
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP
        P=     0
-       LC(5)  OX
+       LC(5)  =OX
        CD0EX
        R2=C                  R2=D0
        A=DAT0 W              A=X
@@ -521,24 +698,55 @@ OT     EQU #2FC00            T address
        C=B    W              C=X
        A=R0                  A=RegValue
        SETDEC
-       GOSBVL MP2-12
+       GOSBVL =MP2-12
        SETHEX
-       GOSBVL RESD1
+       GOSBVL =RESD1
        A=C    W
 *
        C=R1
        CD0EX
        DAT0=A W
-       GOSBVL GETFP
+       GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
        D1=D1+ 5
        RTNCC
+*
 *
 * ST/ divise the value in reg address by X, no lastX
 * use: FVARNAME1 ST/ will divise FVARNAME1 by X
 * released 24 july 2024
        WORD 'ST/'
+       GOSBVL =SAVEFP
+       P=     0
+       LC(5)  =OX
+       CD0EX
+       R2=C                  R2=D0
+       A=DAT0 W              A=X
+       R0=A
 *
-       GOSBVL SAVEFP
+       C=DAT1 A              Field A (=address) in D1 into C(A)
+       R1=C                  R1=D1
+       CD0EX                 Put it into D0
+       A=DAT0 W              A=RegValue
+*
+       C=R0                  C=X
+       SETDEC
+       GOSBVL =DV2-12
+       SETHEX
+       GOSBVL =RESD1
+       A=C    W
+*
+       C=R1
+       CD0EX
+       DAT0=A W
+       GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
+       D1=D1+ 5
+       RTNCC
+*
+*
+* ST^ exponent the value in reg address by X, no lastX
+* test
+       WORD 'ST^'
+       GOSBVL =SAVEFP
        P=     0
        LC(5)  OX
        CD0EX
@@ -553,54 +761,55 @@ OT     EQU #2FC00            T address
 *
        C=R0                  C=X
        SETDEC
-       GOSBVL DV2-12
+       GOSBVL =YX2-12
        SETHEX
-       GOSBVL RESD1
+       GOSBVL =RESD1
        A=C    W
 *
-       C=R1
+       C=R1                  YX2-12 didnt touch it?
        CD0EX
        DAT0=A W
-       GOSBVL GETFP
+       GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
        D1=D1+ 5
        RTNCC
+*
 *
 * RC- upload value from register then substract it to X  
 * tested 22 July 2024
        WORD 'RC-'
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP         save pointers: CPU reg, D0, D1
        C=DAT1 A
        CD0EX
        A=DAT0 W
        R1=A                  RegVal into R1
        P=     0
-       LC(5)  OX
+       LC(5)  =OX
        CD0EX
        A=DAT0 W
        D0=D0- 16
        DAT0=A W              X into L
-       GOSBVL CHS            -X
-       D0=(5)  OX
+       GOSBVL =CHS            -X
+       D0=(5)  =OX
        A=DAT0 W
        C=A    W              -X into C
        A=R1                  RegVal into A
-       GOSBVL AD2-12         -X+RegVal
-       GOSBVL RES12          seems to act on D1
+       GOSBVL =AD2-12         -X+RegVal
+       GOSBVL =uRES12          seems to act on D1
        A=C    W              A = -Result
        P=     0
-       LC(5)  OX
+       LC(5)  =OX
        CD0EX
        DAT0=A W              -Result into X
-       GOSBVL GETFP
-       GOSBVL CHS            Result now in X
+       GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
+       GOSBVL =CHS            Result now in X
        D1=D1+ 5
        RTNCC
+*
 *
 * RC+ upload value from register then add it to X 
 * tested 23 july 2024
        WORD 'RC+'
-*
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP
        C=DAT1 A
        CD0EX
        R1=C                  Save D0 in R1
@@ -608,7 +817,7 @@ OT     EQU #2FC00            T address
        R0=A                  RegVal into R0
 *
        P=     0
-       LC(5)  OX
+       LC(5)  =OX
        CD0EX
        A=DAT0 W              A = X
        D0=D0- 16
@@ -618,23 +827,24 @@ OT     EQU #2FC00            T address
        C=B    W
        A=R0                  X in C, RegVal in A
 *
-       GOSBVL SPLTAC
+       GOSBVL =SPLTAC
        SETDEC
-       GOSBVL AD2-15
+       GOSBVL =AD2-15
        SETHEX
-       GOSBVL RESD1
+       GOSBVL =RESD1
        A=C    W              A = Result
 *
-       D0=(5) OX
+       D0=(5) =OX
        DAT0=A W              Store result into X
-       GOSBVL GETFP
+       GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
        D1=D1+ 5
        RTNCC
+*
 *
 * RC/ upload value from register then divide X by it 
 * tested 23 july 2024
        WORD 'RC/'
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP
 *
        C=DAT1 A
        CD0EX
@@ -643,31 +853,32 @@ OT     EQU #2FC00            T address
        R0=A                  RegVal into R0
 *
        P=     0
-       LC(5)  OX
+       LC(5)  =OX
        CD0EX
        A=DAT0 W
        D0=D0- 16
        DAT0=A W              X into L, A=X
 *      
        C=R0
-       GOSBVL SPLTAC
+       GOSBVL =SPLTAC
        SETDEC
-       GOSBVL DV2-15
+       GOSBVL =DV2-15
        SETHEX
-       GOSBVL RESD1
+       GOSBVL =RESD1
        A=C    W              A = Result
 *
-       D0=(5) OX
+       D0=(5) =OX
        DAT0=A W              Result into X
 *
-       GOSBVL GETFP
+       GOSBVL =GETFP
        D1=D1+ 5
        RTNCC
+*
 *
 * RC* upload value from register then multiply X with it
 * tested 23 July 2024
        WORD 'RC*'
-       GOSBVL SAVEFP
+       GOSBVL =SAVEFP
 *
        C=DAT1 A
        CD0EX
@@ -676,7 +887,7 @@ OT     EQU #2FC00            T address
        R0=A                  RegVal into R0
 *
        P=     0
-       LC(5)  OX
+       LC(5)  =OX
        CD0EX
        A=DAT0 W
        D0=D0- 16
@@ -685,82 +896,209 @@ OT     EQU #2FC00            T address
        B=A    W
        C=B    W 
        A=R0                  A=Regval, C=X
-       GOSBVL SPLTAC
+       GOSBVL =SPLTAC
        SETDEC
-       GOSBVL MP2-15
+       GOSBVL =MP2-15
        SETHEX
-       GOSBVL RESD1
+       GOSBVL =RESD1
        A=C    W              A = Result
 *
        D0=(5) OX
        DAT0=A W              Result into X
 *
-       GOSBVL GETFP
+       GOSBVL =GETFP
        D1=D1+ 5
        RTNCC
 *
+*
+* RC^ upload value from register then exponent X by it 
+* test
+       WORD 'RC^'
+       GOSBVL =SAVEFP
+*
+       C=DAT1 A
+       CD0EX
+       A=DAT0 W
+       R0=A                  RegVal into R0
+*
+       P=     0
+       LC(5)  =OX
+       CD0EX
+       A=DAT0 W
+       D0=D0- 16
+       DAT0=A W              X into L, A=X
+*
+       C=R0
+       SETDEC
+       GOSBVL =YX2-12
+       SETHEX
+       GOSBVL =RESD1
+       A=C    W              A = Result
+*
+       D0=(5) =OX
+       DAT0=A W              Result into X
+*
+       GOSBVL =GETFP
+       D1=D1+ 5
+       RTNCC
+*
+*
 * FVCHS change sign of value in the float var address
 * use: FVARNAME1 FVCHS will minus(value) within FVARNAME1 which is a FVARIABLE
-* tested 23 July 2024
-* optimize with less code by.. changing sign in Variable directly or others?
+* tested 24 July 2024
        WORD 'FVCHS'
-* first X<>
-       P=     0
-       LC(5)  OX             put X-address into C(A)
-       CD0EX                 exchange data pointer address D0 with C(A)
-       R2=C                  save D0
-       A=DAT0 W              A = value of X from its address in C(A)
-       R0=A                  R0 = X
+*
+       GOSBVL =SAVEFP
        C=DAT1 A              copy data at address in D1 into C(A)
        CD0EX
        A=DAT0 W              copy data at address in D0 (in C(A)) into W in A
-       R1=A                  R1 = Reg value
-       P=     0
-       LC(5)  OX             put X-address into C(A)
-       CD0EX                 exchange data pointer address D0 with C(A)
-       A=R1
-       DAT0=A W              X has now value of Reg
-       C=DAT1 A              copy data at address in D1 into C(A)
-       CD0EX                 exchange C(A) with D0
-       A=R0
-       DAT0=A W              value of X into reg
-       C=R2
-       D0=C                  restore D0
 *
-       GOSBVL CHS            change value of X (= -RegVal)
-* again X<>
-       P=     0
-       LC(5)  OX             put X-address into C(A)
-       CD0EX                 exchange data pointer address D0 with C(A)
-*       R2=C                  save D0.. take out?
-       A=DAT0 W              A = value of X from its address in C(A)
-       R0=A                  R0 = X
-       C=DAT1 A              copy data at address in D1 into C(A)
-       CD0EX
-       A=DAT0 W              copy data at address in D0 (in C(A)) into W in A
-       R1=A                  R1 = Reg value
-       P=     0
-       LC(5)  OX             put X-address into C(A)
-       CD0EX                 exchange data pointer address D0 with C(A)
-       A=R1
-       DAT0=A W              X has now value of Reg
-       C=DAT1 A              copy data at address in D1 into C(A)
-       CD0EX                 exchange C(A) with D0
-       A=R0
-       DAT0=A W              value of X into reg
-       C=R2
-       D0=C                  restore D0
+       SETDEC
+       A=-A-1 S
+       SETHEX
 *
+       DAT0=A W
+       CD0EX                 exchange C(A) with D0
+*
+       GOSBVL =GETFP
        D1=D1+ 5              return nothing on data stack
        RTNCC
 *
-* RC^ .. HP15 & Warpcore HP41
-* ?0= ?0# ?0< ?0<= ?0> ?0>= 
-* ?X= ?X# .. Y Z T L
-* FV. float variable view.. like F. and FS.
-* AIRCL integer rcl 
-* X=YZ?
-* X=YZT?
-* SST     sort x y z t stack
-* math functions agm magm fibon iterated coming
+*
+* DEG-RAD : Deg to Rad conversion (D-R in HP41)
+* Result in X is X(old) * (PI/2) / (2* 45)
+* X(old) go into LastX
+* tested 02 Aug 2024
+       WORD 'DEG-RAD'            
+       GOSBVL =NUMST          GET X INTO (A,B), uMODES;SAVEFP;GETX+L
+       GOSBVL =PI/2
+       SETDEC
+       GOSBVL =MP2-15         Resut in A,B
+       SETHEX
+       C=0    W
+       D=C    W
+       P=     0
+       C=C+1  P              Exponent 10**1
+       P=     14
+       D=D+1  P              
+       D=D+1  P
+       D=D+D  P
+       D=D+D  P
+       D=D+1  P              9 in D mantissa
+       SETDEC
+       GOSBVL =DV2-15         Result in A,B
+       SETHEX
+       GOSBVL =PUTABX
+       RTNCC
+*
+*
+* %CH : calculate [(x —-y) 100] / y, see HP41 manual page 84
+* tested 02 Aug 2024
+       WORD '%CH'
+       GOSBVL =SAVEFP
+       P=     0
+       LC(5)  =OX
+       CD0EX
+       A=DAT0 W
+       D0=D0- 16
+       DAT0=A W              X into L, A=X
+       R0=A
+*
+       P=     0
+       LC(5)  =OY
+       CD0EX
+       A=DAT0 W              A = Y
+       SETDEC
+       A=-A-1 S              A = -Y
+       SETHEX
+*       
+       B=A    W
+       C=B    W 
+       A=R0                  A=X, C=-Y
+*       
+       SETDEC
+       GOSBVL =AD2-12        (X-Y) in (A,B)
+       SETHEX
+       C=0    W
+       D=C    W
+       P=     0
+       C=C+1  P              
+       C=C+1  P              Exponent 10**2
+       P=     14
+       D=D+1  P              1 in D mantissa.. = 100 in (C,D)
+*       
+       SETDEC
+       GOSBVL =MP2-15        Resut in A,B
+       SETHEX
+       GOSBVL =EXAB1         [(x —-y) 100] into (R0,R1)
+*       
+       P=     0
+       LC(5)  =OY
+       CD0EX
+       A=DAT0 W              A = Y
+       GOSBVL =SPLTAX         (A,B) = Y
+       C=B    W
+       D=C    W
+       C=A    W              (C,D) = Y
+       GOSBVL =EXAB1         (A,B) now = [(x —-y) 100]
+       SETDEC
+       GOSBVL =DV2-15        (A,B) = [(x —-y) 100] / Y
+       GOSBVL =RESD1
+       SETHEX
+       A=C    W              A = Result
+*
+       D0=(5) =OX
+       DAT0=A W              Result into X
+       GOSBVL =GETFP
+       RTNCC
+*
+*
+* %OF : calculate (X*Y)/100, see HP41 manual page 83, =pdf 89
+* use: 500.0 94.0 %OF  result 470 in X
+* tested 02 Aug 2024
+       WORD '%OF'
+       GOSBVL =SAVEFP
+       P=     0
+       LC(5)  =OX
+       CD0EX
+       A=DAT0 W
+       D0=D0- 16
+       DAT0=A W              X into L, A=X
+       R0=A
+*
+       P=     0
+       LC(5)  =OY
+       CD0EX
+       A=DAT0 W              A = Y
+*       
+       B=A    W
+       C=B    W 
+       A=R0                  A=X, C=Y
+*
+       SETDEC
+       GOSBVL =MP2-12         (X*Y) in (A,B)
+       SETHEX
+* reduce exponent nb by 2 for divide by 100? not tested..
+       C=0    W
+       D=C    W
+       P=     0
+       C=C+1  P              
+       C=C+1  P              Exponent 10**2
+       P=     14
+       D=D+1  P              1 in D mantissa.. = 100 in (C,D)
+*
+       SETDEC
+       GOSBVL =DV2-15         Result in A,B
+       GOSBVL =RESD1
+       SETHEX
+       A=C    W              A = Result
+*
+       D0=(5) =OX
+       DAT0=A W              Result into X
+*
+       GOSBVL =GETFP
+       RTNCC
+*
+*
+*
        END
