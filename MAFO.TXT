@@ -1,34 +1,37 @@
        FORTH
+****************************************************************
+*                           HEADER
+*
+* under BY NC SA CreativeCommons 4.0
+* https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
+* pascaldagornet@yahoo.de
+****************************************************************
 *
 * columns..
 * 1:label  8:mnemonic  15:modifier  from 24:comments
 *
 * System entry points: see 14-1 of IMS Vol 1
 =UMODES EQU #0BDB1           set the modes
-=ARGERR EQU #0BF19           for report invalid arg error
-*=PI     EQU #0C000           PI 12digit form (LCHEX) it goes into fn1 which is 
-*                             the FRTN1 and probably for BASIC use only..
 =SUBONE EQU #0C327           substract 1 to (A,B) page 1392 of idsv3
 =ADDONE EQU #0C330           add 1 to (A,B) (AD15S..) pdf page 1391 idsv3
 =IN2-15 EQU #0C33E           1/X where X=(A,B)
 =X/Y15  EQU #0C34F           X/Y where X=(A,B) and Y=(C,D)
-=AD2-12 EQU #0C35F           12 digit add = (A) + (C) 15dig result in (A,B)
-=AD2-15 EQU #0C363           15-digit add = (A,B) + (C,D) 
+=AD2-12 EQU #0C35F           12 digit add = (A) + (C) 15dig result in (A,B) idsv3 pdf page 1394
+=AD2-15 EQU #0C363           15-digit add = (A,B) + (C,D) idsv3 pdf page 1394
 =AD15S  EQU #0C369           same + SB reset pdf page 1394 of idsv3
 =MP2-12 EQU #0C432           12 digit * (A) * (C) result 15dig in (A,B) idsv3 pdf page 1397
 =MP1-12 EQU #0C436           12 digit * (A,B) * (C) result 15dig in (A,B) idsv3 pdf page 1397
 =MP2-15 EQU #0C43A           15-digit multiply (A,B) * (C,D) result 15dig in (A,B) idsv3 pdf page 1397
 =DV2-12 EQU #0C4A8           12-digit divise (A) and (C) result in (A,B) idsv3 pdf page 1399
 =DV2-15 EQU #0C4AC           15-digit divise (A,B) and (C,d) result in (A,B) idsv3 pdf page 1399
-=DV15S  EQU #0C4B2           ?? 15-digit divise SB not cleared use ??
 =SQR15  EQU #0C534           idsv3 pdf page 1401 SQR(A,B) result in (A,B)
-=SPLITA EQU #0C6BF           Extend (A) into (A,B)
-=CLRFRC EQU #0C6F4           (A,B) to (A,B) w/o fractio part page 1409
-=SPLTAC EQU #0C934           Extend (A) and (C) into (A,B) and (C,D)
+=XYEX   EQU #0C697           Exchange (A,B) with (C,D)  pdf idsv3 page 1408
+=SPLITA EQU #0C6BF           Extend (A) into (A,B) pdf idsv3 page 1408
+=CLRFRC EQU #0C6F4           (A,B) to (A,B) w/o fractio part page 1409 exit in DECMODE carry set if no frac part
+=FRAC15 EQU #0C70E           frac of (A,B) into (A,B) page 1411 pdf ids3
+=SPLTAC EQU #0C934           Extend (A) and (C) into (A,B) and (C,D) pdf idsv3 page 1424
 =SPLITC EQU #0C940           Extend (C) into (C,D) pdf idsv3 page 1425
-=uRES12 EQU #0C994           Reduce (A,B) into (C) idsv3 pdf page 1426 
-*                             uses R3 therefore avoid it
-=NRM12  EQU #0C9BB           ?? Round to 12 sig digits
+=uRES12 EQU #0C994           Reduce (A,B) into (C) idsv3 pdf page 1426 uses R3 therefore avoid it
 =YX2-12 EQU #0D274           Y^X & Reg 0 2 3 modified
 =STAB1  EQU #0D3D9           Store AB into scratch1 (R0,R1) pdf idsv3 page 1471
 =EXAB1  EQU #0D3E7           Exchange AB and scratch1 pdf idsv3 page 1471
@@ -37,36 +40,23 @@
 =EXAB2  EQU #0D40E           Exchange AB and scratch2 pdf idsv3 page 1471
 =RCCD2  EQU #0D41C           Recall scratch2 into CD pdf idsv3 page 1471
 =STCD2  EQU #0D427           Store CD into scratch2 (R2,R3) pdf idsv3 page 1471
-=uTEST  EQU #0D435           User real comparison Page 1484..6
-=TST15  EQU #0D47A           Compare numbers 15dg AB vs CD
-*                             P has the cell# assoClated width the nUMber pair, arg's in 15-dig forM unchanged.
-*                             page 1486 of idsv3
-=MAKEPI EQU #0D6F1           Put PI into (C,D)
 =SPLTA  EQU #0D706           = splita ids v3 page 1500
 =SPLTB  EQU #0D70C           = splitb ids v3 page 1500
 =SIN12  EQU #0D716           = splita ids v3 page 1502
 =SIN15  EQU #0D71A           ids v3 page 1502 alter R0 R1
 =COS12  EQU #0D721           = splita ids v3 page 1502
 =COS15  EQU #0D725           ids v3 page 1502 alter R0 R1
-=PI/2   EQU #0DB77           load PI/2 into (C,D)
+=PI/2   EQU #0DB77           load PI/2 into (C,D) idsv3 pdf page 1517
 =ATAN15 EQU #0DBBE           atan of 15 digit args (A,B) result in (A,B) ids v3 page 1520
-=SB15S  EQU #0E19A           substraction 15 digits (A,B) = (A,B) - (C,D) . needs SETDEC before
-=DMP15S EQU #0E1B3           SETDEC then MP15S
-=uRESD1 EQU #0E1EE           Reduce (A,B) into (C), similar uRES12, R3 touched
+=uRESD1 EQU #0E1EE           Reduce (A,B) into (C), similar uRES12, exi: R3 touched, S8-11 ..
 *                            dont alter D1,P=14 ids3 pdf page 1553
 * =FNRTN4 EQU #0F238          function return, page 1679 ONLY FOR BASIC
 =SPLTAX EQU #0E62B           SETDEC, Extend (A) into (A,B) Page 1585
-=SIGTST EQU #0E636           Handle signal NaN Page 1585 
 =BP     EQU #0EADF           make beep float A HZ Float C duration sec
-=POP1R  EQU #0E8FD           RTN of POP1N #0BD1C Seite 1361 take 1 arg off mathstack
-=STSCR  EQU #0E92C           Push (A,B) into top math scratch stack page 1607
-=RCLW1  EQU #0E981           recall 1 top math stack entry page 1610 move (AB) to (CD) then recal into (AB)
 =HDFLT  EQU #1B31B           change hex integ A(A) to 12dig float in A(W) exit DEC mode
 =FLOAT  EQU #1B322           change integ to 12dig float in A page 2631 ids pdf vol3
 =FLTDH  EQU #1B223           Convert 12digit flt A to 5 digit Hex Integ A(A) pdf 2627 idsv3, see 
 *                             out with hex mode, see FTOI forth/asm ids page pdf 308
-=MTHSTK EQU #2F599           data stack
-=FUNCD0 EQU #2F8BB           function scratch RAM allocation 5 nibbles see FUNCD1 FUNCR0..R1 too page 3089
 =OL     EQU #2FBC0           L address
 =OX     EQU #2FBD0           X address
 =OY     EQU #2FBE0           Y address
@@ -79,8 +69,8 @@
 =NUMST  EQU #E1718           GET X INTO (A,B); L = X
 =MOD    EQU #E1CA1           modulo ids Forth/ASM pdf page 287
 =ABS    EQU #E1A23           (n -- |n|)
-=XXYY   EQU #E212D           comparison of a(X?) and c(Y?) (or zero) pdf page 304 Forth/asm ids
-=CMPST  EQU #E216C           comparison operator routine pdf page 304 Forth/asm ids
+=XXYY   EQU #E212D           comparison of a(X?) and c(Y?) (or zero) pdf page 304 Forth/asm ids, out with GETFP
+=CMPST  EQU #E216C           comparison operator routine pdf page 304 Forth/asm ids, out with SAVEFP
 =X<>Y   EQU #E23A5           X<>Y pdf page 313 Forth/asm
 =OVER   EQU #E2538           (n1 n2 -- n1 n2 n1)
 =SAVEFP EQU #E717A           save Forth pointer
@@ -102,27 +92,31 @@
 *   the entries can have = in the front of them or not ( = is ignored)
 *   freeze if D1 wildly changed in a word
 *   P=     0 before LC(5)  =OY ! or X Z..
+*   C then A has to be loaded prior any AD MP DIV
+****************************************************************
+*                           WORDS
 ****************************************************************
 *
 *
 ****************************************************************
-* CLFV : initialize float variable to zero. tested 17 July 2024
+* CLFV : initialize float variable to zero.
 * FVAR1 CLFV .. will put 0 into the FVARIABLE FVAR1
+* tested 18 Sept 2024
        WORD 'CLFV'
        GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
        C=DAT1 A              copy data at address in D1 into C(A)
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
        A=0    W
        DAT0=A W
-       D0=C
-       GOSBVL =GETFP
+       GOSBVL =GETFP         restore Forth pointers
        D1=D1+ 5
        RTNCC
 ****************************************************************
 *
 *
 ****************************************************************
-* CLX : set X to zero. LastX not modified (see HP41). tested 15july24
+* CLX : set X to zero. LastX not modified (see HP41).
+* tested 18 Sept 2024
        WORD 'CLX'
        GOSBVL =SAVEFP
        P=     0
@@ -130,8 +124,7 @@
        CD0EX                 exchange data pointer address D0 with C(A)
        A=0    W
        DAT0=A W
-       D0=C
-       GOSBVL =GETFP
+       GOSBVL =GETFP         restore Forth pointers
        RTNCC
 ****************************************************************
 *
@@ -152,7 +145,7 @@
        DAT0=A W              Z set to zero
        D0=D0+ 16
        DAT0=A W              T set to zero
-       GOSBVL =GETFP
+       GOSBVL =GETFP         restore Forth pointers
        RTNCC
 ****************************************************************
 *
@@ -184,8 +177,7 @@
        P=     14
        A=A+1  P
        DAT0=A W
-       D0=C
-       GOSBVL =GETFP
+       GOSBVL =GETFP         restore Forth pointers
        RTNCC
 ****************************************************************
 *
@@ -197,7 +189,7 @@
        GOSBVL =NUMST         GET X INTO (A,B), uMODES;SAVEFP;GETX+L
 *       GOSBVL =SUBONE        WRN: appear, therefore better next
        C=0    W
-       C=-C-1 S              negativ 2(C,D)
+       C=-C-1 S              negativ 2in (C,D)
        D=0    W
        P=     14
        D=D+1  P              
@@ -263,7 +255,7 @@
        GOSBVL =NUMST         GET X INTO (A,B), uMODES;SAVEFP;GETX+L
        C=B    W
        D=C    W
-       C=A    W              copy (A,B) to (C,D)
+       C=A    W              copy (A,B) to (C,D). use STAB1 and RCCD1
        GOSBVL =AD2-15        (A,B) + (C,D) and put result in (A,B) = X+X = 2*X
        GOSBVL =PUTABX
        RTNCC
@@ -287,7 +279,9 @@
 *
 ****************************************************************
 * X<> exchange the value in the variable with the value in X
-*       use: FVAR1 X<>   tested 15july2024
+* use: FVAR1 X<>
+* tested 15july2024
+* use like the word X<=0? the ST flag for all variants below?
        WORD 'X<>'
        P=     0
        LC(5)  =OX            put X-address into C(A)
@@ -307,7 +301,7 @@
        C=DAT1 A              copy data at address in D1 into C(A)
        CD0EX                 exchange C(A) with D0
        A=R0
-       DAT0=A W              value of X into reg
+       DAT0=A W              value of X into variable
        C=R2
        D0=C                  restore D0
        D1=D1+ 5              return nothing on data stack
@@ -704,8 +698,9 @@
 *
 *
 ****************************************************************
-* ST- substract X value in the reg address, no lastX, tested 13 07 2024
-*      use: FVARNAME1 ST- will substract the X value within FVARNAME1
+* ST- substract X value in the reg address, no lastX
+* use> FVARNAME1 ST- will substract the X value within FVARNAME1
+* tested 18 Sept 2024
        WORD 'ST-'
        GOSBVL =CHS           change sign of X for later calc
        GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
@@ -717,17 +712,15 @@
        LC(5)  =OX            load of X register addr into C(A)
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
        A=DAT0 W              copy data of X into A
-       CD0EX                 exchange C(A) with D0 (the instruction pointer)
        C=A    W              (-XValue) into (C)
        A=R0                  (RegValue) into (A)
        GOSBVL =SPLTAC        (A) in (A,B) and (C) in (C,D)
        GOSBVL =AD2-15        (A,B) + (C,D) and result in (A,B) = RegVal -X
-       GOSBVL =uRES12        (A,B) into (C) (will touch D1= freeze if D1 modified)
+       GOSBVL =uRES12        (A,B) into (C)
        A=C    W              put C into A
        C=DAT1 A              copy data at address in D1 into C(A)
        CD0EX                 exchange C(A) with D0 (the instruction pointer)
        DAT0=A W              Write value (OrgRegVal -X) to reg back
-       D0=C
        GOSBVL =GETFP         restore pointers: CPU reg, D0, D1
        GOSBVL =CHS           change back from -X to X
        D1=D1+ 5              return nothing on data stack
@@ -737,14 +730,13 @@
 *
 ****************************************************************
 * ST+ add X value in the reg address, no lastX
-*      use: FVARNAME1 ST+ will add the X value within FVARNAME1
+* use> FVARNAME1 ST+ will add the X value within FVARNAME1
 * released 23 july 2024
        WORD 'ST+'
        GOSBVL =SAVEFP
        P=     0
        LC(5)  =OX
        CD0EX
-       R2=C                  R2=D0
        A=DAT0 W              A=X
        R0=A
        C=DAT1 A              Field A (=address) in D1 into C(A)
@@ -777,7 +769,6 @@
        P=     0
        LC(5)  =OX
        CD0EX
-       R2=C                  R2=D0                               take away?
        A=DAT0 W              A=X
        R0=A
        C=DAT1 A              Field A (=address) in D1 into C(A)
@@ -810,7 +801,6 @@
        P=     0
        LC(5)  =OX
        CD0EX
-       R2=C                  R2=D0
        A=DAT0 W              A=X
        R0=A
        C=DAT1 A              Field A (=address) in D1 into C(A)
@@ -840,7 +830,6 @@
        P=     0
        LC(5)  =OX
        CD0EX
-       R2=C                  R2=D0
        A=DAT0 W              A=X
        R0=A
        C=DAT1 A              Field A (=address) in D1 into C(A)
@@ -853,7 +842,7 @@
        SETHEX
        GOSBVL =uRESD1
        A=C    W
-       C=R1                  YX2-12 didnt touch it?
+       C=R1
        CD0EX
        DAT0=A W
        GOSBVL =GETFP         restore pointers: CPU reg, D0, D1
@@ -883,7 +872,7 @@
        C=A    W              -X into C
        A=R1                  RegVal into A
        GOSBVL =AD2-12        -X+RegVal
-       GOSBVL =uRES12        seems to act on D1
+       GOSBVL =uRES12
        A=C    W              A = -Result
        P=     0
        LC(5)  =OX
@@ -903,7 +892,6 @@
        GOSBVL =SAVEFP
        C=DAT1 A
        CD0EX
-       R1=C                  Save D0 in R1..                    necessary? since R1 not used later
        A=DAT0 W
        R0=A                  RegVal into R0
        P=     0
@@ -914,14 +902,14 @@
        DAT0=A W              X into L
        B=A    W
        C=B    W
-       A=R0                  X in C, RegVal in A..              C=R0 better?
+       A=R0                  X in C, RegVal in A.. C=R0 better?
        GOSBVL =SPLTAC
        SETDEC
        GOSBVL =AD2-15
        SETHEX
        GOSBVL =uRESD1
        A=C    W              A = Result
-       D0=(5) =OX                                               or D0=D0+ 16 is optimized?
+       D0=(5) =OX
        DAT0=A W              Store result into X
        GOSBVL =GETFP          restore pointers: CPU reg, D0, D1
        D1=D1+ 5
@@ -935,9 +923,7 @@
        WORD 'RC/'
        GOSBVL =SAVEFP
        C=DAT1 A
-*       D1=D1+ 5             freeze if here or D1 wildly changed
        CD0EX
-       R1=C                  save D0 for restoration later
        A=DAT0 W
        R0=A                  RegVal into R0
        P=     0
@@ -968,7 +954,6 @@
        GOSBVL =SAVEFP
        C=DAT1 A
        CD0EX
-       R1=C                  save D0 for restoration later
        A=DAT0 W
        R0=A                  RegVal into R0
        P=     0
@@ -1054,6 +1039,7 @@
        SETDEC
        GOSBVL =MP2-15        Resut in A,B
        SETHEX
+* create 90 in (C,D)
        C=0    W
        D=C    W
        P=     0
@@ -1064,6 +1050,7 @@
        D=D+D  P
        D=D+D  P
        D=D+1  P              9 in D mantissa
+*
        SETDEC
        GOSBVL =DV2-15        Result in A,B
        SETHEX
@@ -1079,6 +1066,7 @@
 * tested 2nd Aug 2024
        WORD 'RAD-DEG'
        GOSBVL =NUMST         GET X INTO (A,B), uMODES;SAVEFP;GETX+L
+* create 90 in (C,D)
        C=0    W
        D=C    W
        P=     0
@@ -1089,6 +1077,7 @@
        D=D+D  P
        D=D+D  P
        D=D+1  P              9 in D mantissa
+*
        SETDEC
        GOSBVL =MP2-15        Resut in A,B
        SETHEX
@@ -1217,7 +1206,6 @@
        P=     14
        A=A+1  P              Create "1" with the same sign than X
        DAT0=A W
-       D0=C
        GOSBVL =GETFP         take the WRN: message away
        RTNCC
 ****************************************************************
@@ -1258,26 +1246,20 @@
        WORD 'TONE'
        GOSBVL =ABS           for positive whatever input was
        GOSBVL =SAVEFP
-* not tested/completed; if bigger than 9, reduce with MOD 10
-*       C=0    W
-*       LCHEX  100000000000001  ? Integer format in integ stack?
-*       D1=D1- 5
-*       DAT1=C A
-*       GOSBVL =MOD 
        A=DAT1 A
-       GOSBVL =HDFLT          change A(A) to float A(W) 12 digits for further calc. exit with DEC mode
+       GOSBVL =HDFLT         change A(A) to float A(W) 12 digits for further calc. exit with DEC mode
        C=0    S
        P=     0
        LCHEX  437777777777001 
        GOSBVL =MP2-12        result into (A,B)
-       GOSBVL =uRESD1         result into C
+       GOSBVL =uRESD1        result into C
        R0=C
        C=0    S              S instead of W for less size?
        P=     0
        LCHEX  394000000000002
        A=R0
        GOSBVL =AD2-12        result into (A,B)
-       GOSBVL =uRESD1         result into C as 12 digit
+       GOSBVL =uRESD1        result into C as 12 digit
        R0=C                  R0 Hz 
        C=0    W
        P=     0
