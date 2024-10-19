@@ -6,6 +6,8 @@ The files H71B1 and H71B2G are subject to further development: their maturity wa
 The target is to create a cross-development biotop for the HP71B on modern PC (especially due to editor convenience) with the help of Emacs, awk, and/or EMU71.
 This is achieved by using Gforth under Linux Debian (nothing was tested/tried under Windows).
 
+The .emacs file has to be created in the main user directory based on the file EMACSSETUP.TXT
+
 First upload the FTHUTILA and FTHUTILF into HP71B (See HP-71 Software Developers Handbook, Section 21). make sure the newest word TIME is uploaded into the HP71B for later use. See the assembler file in attachment. Since FTHUTILA has this TIME word, update this word in FTHUTILA with the modified assembler TIMEASM.
 
 The files can have different versions: one for cross-development on PC/Gforth (& perhaps one adapted for PC/Gforth simulating the HP71B implementation especially for HP-IL and screen) and one for HP71B only (especially screen outputs, use of the BASICX commands, HP-IL ..).
