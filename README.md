@@ -1,4 +1,4 @@
-# HP71B_forth
+# HP71B forth and ASM/forth
 
 Few programs written in forth for the HP71B. Use at your own risk.
 The files H71B1 and H71B2G are subject to further development: their maturity was enough to start 3 programs described below.
