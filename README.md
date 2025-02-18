@@ -74,3 +74,5 @@ FS. = Float stack view. FS. will show the content of the float stack without mod
 Example 5: MAFO.TXT
 Forth words in HP71B ASM (assembler) for stack and float variable algebra (similar to Warpcore-Module functions of the HP41) X<>Z X<>T.. RC* ST/ .. and with the aim to give the similar HP41 functions in the HP71B forth ( CLST DEG-RAD etc.). Upload the ASM file with the commands in a linux terminal "unix2dos -v MAFO.TXT" then "wine '/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/alifhdr32/alifhdr.exe' MAFO.TXT MAFO.DAT /T" then upload the file into the HP71B by including MAFO.TXT into the ILPER IN field of DOSLINK and COPY :DOSLINK in the BASIC prompt of EMU71. Then go into the Forth prompt with the FORTH command. Then " MAFO" ASSEMBLE will create the Forth words in the FORTHRAM file.
 
+Example 6: EPER.TXT
+Forth words AGM and EPER in HP71B ASM (assembler) for calculating the AGM and Ellipse Perimeter by iterated functions.
