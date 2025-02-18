@@ -354,7 +354,7 @@ rclw1  RSTK=C
 * 
 * install (debian linux)
 *   unix2dos -v EPER.TXT
-*   wine '/home/pascal/.wine/drive_c/Program Files (x86)/HP-Emulators/alifhdr32/alifhdr.exe' EPER.TXT EPER.DAT /T
+*   wine '/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/alifhdr32/alifhdr.exe' EPER.TXT EPER.DAT /T
 *   upload EPER.DAT into "In" field of DosLink of EMU71 / ILPER
 *   in BASIC prompt: COPY :DOSLINK
 *   go into the FORTH prompt.. " EPER" ASSEMBLE
