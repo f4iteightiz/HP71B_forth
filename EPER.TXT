@@ -57,7 +57,7 @@ PWEEDS  EQU #0C5D3           pull weeds page 1403 use BASIC only?
 =FNPWDS EQU #0D3C0           Weeds out NaNs and Infs; pdf idsv3 page 1469 see LN15, FAC15S of MAFO
 =STAB1  EQU #0D3D9           Store AB into scratch1 (R0,R1) pdf idsv3 page 1471
 =EXAB1  EQU #0D3E7           Exchange AB and scratch1 pdf idsv3 page 1471
-=RCCD1  EQU #0D3F1           Recall scratch1 into CD pdf idsv3 page 1471
+=RCCD1  EQU #0D3F5           Recall scratch1 into CD pdf idsv3 page 1471
 =STAB2  EQU #0D400           Store AB into scratch2 (R2,R3) pdf idsv3 page 1471
 =EXAB2  EQU #0D40E           Exchange AB and scratch2 pdf idsv3 page 1471
 =RCCD2  EQU #0D41C           Recall scratch2 into CD pdf idsv3 page 1471
