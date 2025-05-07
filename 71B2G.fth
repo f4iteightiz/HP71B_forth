@@ -336,7 +336,8 @@ CREATE PAD 80 C, 0 C, 80 ALLOT
 ( setup the stack in GFORTH
 ( both taken off on June 12 2024 because issue with gforth stack set to 3 )
 ( after taking FLITERAL out, reinserted and looks better )
-D_SSET  ( must be this line in case of use of the float stack  )
+D_SSET
+\ D_?SINIT  ( must be this line in case of use of the float stack  )
 D_RPNS
 (  X       Y       Z       T       L    later on HP71B STACK   )
 \
@@ -1315,6 +1316,22 @@ STRING-ARRAY
 \ --------------------------------------------------------------
 \
 \
+\ CLFV ---------------------------------------------------------
+\
+\ initialize float variable to zero
+\ ( addr -- )
+: CLFV  0.0E0 F! ;
+\ test
+\ FVARIABLE FVAR1  ok
+\ 1.0E0 FVAR1 F!
+\ 1.0E0 2.0E0 3.0E0 fs. 3.00000000000000E0  ok
+\ fs. 2.00000000000000E0  ok
+\ fs. 1.00000000000000E0  ok
+\ 1.0E0 2.0E0 3.0E0 FVAR1 F!  ok
+\ fs. 2.00000000000000E0  ok
+\ --------------------------------------------------------------
+\
+\
 \ CLOSEALL -----------------------------------------------------
 \
 \ Close all open files (that is, files with an open FIB entry).
@@ -1330,6 +1347,54 @@ STRING-ARRAY
 : CLOSEF  CR CR ." not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
+\
+\ CLRV ---------------------------------------------------------
+\
+\ read the float variable sss,eeeii and put sss eee ii into the
+\ integer stack
+\ ( addr -- sss eee ii )
+: CLRV
+    f@ fdup f>s            \ Kopiere und hole den Ganzzahlteil: f sss
+    >r                     \ sss nach Rückgabestack
+    fdup f>s               \ Kopie von f, erneut sss holen
+    s>f f-                 \ f - sss = nur Nachkommastellen
+    100000e f*             \ Nachkommastellen * 100000 (verschiebe 5 Stellen)
+    f>s                    \ in Integer konvertieren
+    dup 100 /              \ eee extrahieren
+    swap 100 mod           \ ii extrahieren
+    \
+    dup                    \ ii should be never 0 (minimum 1)
+    0= if
+	1 +
+	else then
+    \
+    r>                     \ sss vom Rückgabestack holen
+    rot rot
+;
+\ test
+\ FVARIABLE FVAR1  ok
+\ 123.6780201E0 FVAR1 F!
+\ FVAR1 CLRV S.  [ 123 678 2 ]  ok
+\ . 2  ok
+\ . 678  ok
+\ . 123  ok
+\ 
+\ --------------------------------------------------------------
+\
+\
+\ CLST ---------------------------------------------------------
+\
+\ Clear float stack
+: CLST  X 0.0E0 F! Y 0.0E0 F! Z 0.0E0 F! T 0.0E0 F! D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ CLX ----------------------------------------------------------
+\
+\ clear the register X
+\ ( -- )
+: CLX  0.0E0 X F! ;
+\ --------------------------------------------------------------
 \
 \ CMOVE --------------------------------------------------------
 \ like in gforth
@@ -2054,13 +2119,77 @@ CR CR ." EXPECT96 not tested" CR ;
 \
 \
 \ FTOI ---------------------------------------------------------
+\ Update 28July2024: INIT & FDUP included
 \
 \ ( r – n )  \ floating-ext “f-to-s”  gforth like
 \ Convert x (the contents of the X-register) to an integer and return it to the data stack. If Ix| > FFFFF, an
 \ overflow error occurs. FTOI takes the absolute value of x, rounds it to the nearest integer, and converts it
 \ to a five-nibble value. If x was positive, FTOI returns this result; if x was negative, FTOI returns the
 \ twos complement of this result.
-: FTOI F>S ;
+: FTOI   D_?SINIT FDUP F>S ;
+\
+\ test gforth
+\ D_RPNS 
+\
+\ HP71B float stack content, RPN HP41 (& gforth stack):
+\    X       2.00000     Top gforth      2.00000
+\    Y       2.00000                     2.00000
+\    Z       5.67800                     5.67800
+\    T       0.00000     Bottom gforth   0.00000
+\    LASTX   0.00000
+\
+\  float   stack gforth  
+\   <stack depth> bottom to top, of stack
+\   <4> 0.000000000000E0 5.678000000000E0 2.000000000000E0 2.000000000000E0 
+\
+\ integer stack gforth  
+\   <stack depth> bottom to top, of stack
+\   <1> 5 
+\
+\ RADIAN ON
+\ BASE: 10 
+\
+\  ok
+\ 3.456789E0 FTOI D_RPNS 
+\
+\ HP71B float stack content, RPN HP41 (& gforth stack):
+\    X       3.45679     Top gforth      3.45679
+\    Y       2.00000                     2.00000
+\    Z       2.00000                     2.00000
+\    T       5.67800     Bottom gforth   5.67800
+\    LASTX   0.00000
+\
+\ float   stack gforth  
+\   <stack depth> bottom to top, of stack
+\   <4> 5.678000000000E0 2.000000000000E0 2.000000000000E0 3.456789000000E0 
+\
+\ integer stack gforth  
+\   <stack depth> bottom to top, of stack
+\   <2> 5 3 
+\
+\ RADIAN ON
+\ BASE: 10 
+\
+\ ok
+\
+\ test EMU41
+\ FS.
+\ T: 7 
+\ Z: -3 
+\ Y: 3 
+\ X: 2.3456 
+\ L: 1 
+\  OK { 0 } 
+\ FTOI .       >> integer appear in integer stack
+\ 2  OK { 0 } 
+\ FS.
+\ T: 7 
+\ Z: -3 
+\ Y: 3 
+\ X: 2.3456   >> X not touched
+\ L: 1 
+\ OK { 0 } 
+\ 
 \ --------------------------------------------------------------
 \
 \
@@ -2235,19 +2364,27 @@ D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
 \ --------------------------------------------------------------
 \
 \
+\                   test on HP71B and gforth
 \ LATEST -------------------------------------------------------
+\ see gforth
+\ https://gforth.org/manual/Name-token.html#index-latest-_0028-_002d_002d-nt-_0029-gforth_002d0_002e6
+\ latest ( – nt  ) gforth-0.6 “latest”
+\ nt is the name token of the last word defined; it is 0 if the last word has no name. 
+\
 \ ( -- addr )
 \ Return the NFA of the most recent word in the CURRENT vocabulary.
 \ >>>> LATEST
-: LATEST  CR CR ." LATEST not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
+\              look at behaviour in HP71B and gforth
 \ LEAVE --------------------------------------------------------
+\ in gforth
+\ https://gforth.org/manual/Counted-Loops.html#index-LEAVE-_0028-compilation-_002d_002d-_003b-run_002dtime-loop_002dsys-_002d_002d-_0029-core
+\
 \ COMPILE, IMMEDIATE. Skip to the word after the next L00P or +LOOP. LEAVE terminates the loop
 \ and discards the control parameters. Used only within a DO ... LOOP or +LOOP construct.
 \ >>>> LEAVE
-: LEAVE  CR CR ." LEAVE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
 \
@@ -2846,6 +2983,7 @@ CR CR ." NUMBER to be worked out in gforth" CR ;
 : PAGESIZE  CR CR ." PAGESIZE not implemented in gforth" CR ;
 \ --------------------------------------------------------------
 \
+: PI PI D_SSET ;
 \
 \ PICK ---------------------------------------------------------
 \ tested 8 Nov 2023
@@ -2997,9 +3135,38 @@ VARIABLE PRIMARY
 \    X              Y            Z      T      L   = GFORTH STACK w/o L
 \    (f-addr)->X    Xbefore      Y      Z      L   = updated GFORTH Stack 
 : RCL
-\    ." RCL stacks in " D_RPNS
+    \    ." RCL stacks in " D_RPNS
+    D_?SINIT
     F@
-\    D_?SINIT
+    D_?SINIT
+\    ." RCL stacks out " D_RPNS
+;
+\ --------------------------------------------------------------
+\
+\
+\ RCLIND -------------------------------------------------------
+\
+\ lift the float stack and place in the X register the number found at ind addr
+\ ( f-addr -- r )
+\    X              Y            Z      T      L   = GFORTH STACK w/o L
+\    (f-addr)->X    Xbefore      Y      Z      L   = updated GFORTH Stack 
+: RCLIND
+    \    ." RCL stacks in " D_RPNS
+    D_?SINIT
+    DUP   ( addr addr  -- )
+    DUP   ( addr addr addr -- )
+    F@ F>S  ( addr addr N -- )
+    SWAP      ( addr N addr -- )
+    CELLS 8 = IF 1 CELLS ELSE 16 THEN
+    -
+    @    ( addr N POS -- )
+    -   ( addr POS-N -- )
+    CELLS 8 = IF 1 CELLS ELSE 16 THEN
+    2 *
+    *
+    +
+    F@
+    D_?SINIT
 \    ." RCL stacks out " D_RPNS
 ;
 \ --------------------------------------------------------------
@@ -3519,6 +3686,24 @@ D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
 : SQRT  D_?SINIT FDUP L F! FSQRT FDUP X F! ;
 \ --------------------------------------------------------------
 \
+\ ST* ----------------------------------------------------------
+\ tested 
+\ ( I: addr -- FV@I *X  )
+: ST* DUP F@ X F@ F* F!
+ D_RPNREC \ reconstitute the gforth stack based on the RPN stack X Y Z T
+; 
+\ ST+ ----------------------------------------------------------
+\ tested 
+\ ( I: addr -- FV@I *X  )
+: ST+ DUP F@ X F@ F+ F!
+ D_RPNREC \ reconstitute the gforth stack based on the RPN stack X Y Z T
+; 
+\ ST/ ----------------------------------------------------------
+\ tested 
+\ ( I: addr -- FV@I *X  )
+: ST/ DUP F@ X F@ F/ F!
+ D_RPNREC \ reconstitute the gforth stack based on the RPN stack X Y Z T
+; 
 \
 \                            test this 
 \ STATE --------------------------------------------------------
@@ -3550,8 +3735,46 @@ D_RPNREC \ reconstitute the gforth fstack based on the RPN stack X Y Z T
 \    Xg      Yg      Zg      Tg      L 
 \    Xg      Yg      Zg      Tg      L
 \ ( f-addr -- )
-: STO  D_?SINIT FDUP F! FDUP X F! ;
+\ : STO  D_?SINIT FDUP F! FDUP X F! ;
+: STO  D_?SINIT FDUP F! D_RPNREC ;
 \ --------------------------------------------------------------
+\
+\
+\ STOIND -------------------------------------------------------
+\
+\ ( addr -- )
+\ Store the contents of the X-register at ind addr.
+\
+\ store the content of X at nth registerf-addr.
+\ the GFORTH stack should not move
+\    Xg      Yg      Zg      Tg      L 
+\    Xg      Yg      Zg      Tg      L
+\ ( f-addr -- )
+\
+\ test if X Y Z T L
+\ 5.0 Y STO
+\ Y RCL FTOI REG41 2.0 STOIND.. 2.0 in 5 REG41 to check with CLX 5 REG41 RCL FS.
+\
+\ test if register
+\ 2.0 5 REG41 STOIND
+\
+: STOIND
+    D_?SINIT
+    DUP   ( addr addr  -- )
+    DUP   ( addr addr addr -- )
+    F@ F>S  ( addr addr N -- )
+    SWAP      ( addr N addr -- )
+    CELLS 8 = IF 1 CELLS ELSE 16 THEN
+    -
+    @    ( addr N POS -- )
+    -   ( addr POS-N -- )
+    CELLS 8 = IF 1 CELLS ELSE 16 THEN
+    2 *
+    *
+    +
+    FDUP F! FDUP X F! ;
+\ --------------------------------------------------------------
+\
 \
 \
 \ STR$ ---------------------------------------------------------
@@ -3593,7 +3816,9 @@ D_PADSET ;
 \ .
 \ 0  OK { 1 } 
 \ .
-\ 203481  OK { 0 } 
+\ 203481  OK { 0 }
+\ 400 STRING STR2       No message it should not be longer than 255
+\ OK { 0 } 
 \ 5 STRING STR1
 \ OK { 0 } 
 \ 5 CONSTANT CON1
@@ -4039,14 +4264,16 @@ VARIABLE WARN
 \ --------------------------------------------------------------
 \
 \
-\               test this
+\               test this on gforth and hp71B. use?
 \ WORD ---------------------------------------------------------
+\ in gforth
+\ https://gforth.org/manual/The-Input-Stream.html#index-word-_0028-char-_0022_003cchars_003eccc_003cchar_003e_002d_002d-c_002daddr-_0029-core
+\
 \ ( c -- addr )
 \ Receive characters from the input stream until the non-zero delimiting character c is encountered or the
 \ input stream is exhausted, and store the characters in a counted string at addr. WORD ignores leading
 \ delimiters. If the input stream is exhausted as WORD is called, a zero-length string results.
-\ >>>> : WORD  REFILL  ;
-: WORD CR CR ." WORD not tested in gforth" CR ;
+\ >>>> WORD
 \ --------------------------------------------------------------
 \
 \
@@ -4063,6 +4290,10 @@ VARIABLE WARN
 \ ( -- X-addr ) or simply ( -- 2FBDO )
 \ --------------------------------------------------------------
 \
+\ X+1 ----------------------------------------------------------
+\
+: X+1 1.0E0 F+ FDUP X F! ;
+\ --------------------------------------------------------------
 \
 \ X<>Y ---------------------------------------------------------
 \
@@ -4884,9 +5115,13 @@ FVARIABLE FSCRATCH
 \ --------------------------------------------------------------
 \
 DECIMAL
-\             see separate LIF file for this assembler word
+\ --------------------------------------------------------------
+\             see separate LIF files for these assembler words
 \             any GH_xx must be in one line because will be
 \             deleted by the awk filtering
+\ --------------------------------------------------------------
+\
+\
 \ TIME ---------------------------------------------------------
 \ tested on gforth PC
 \  "TIME" in HP71B translator module: H.MMSS into the float stack and hh:mm:ss into screen
@@ -4933,6 +5168,206 @@ DECIMAL
     \
     F+ D_?SINIT
 ;
+\ --------------------------------------------------------------
+\
+\
+\ T71>41 -------------------------------------------------------
+\ tested on gforth PC
+\  change from SSSSS.ss into HH.MMSSss into the float stack
+\  see HP71B ASM word
+: T71>41
+( r:SSSSS.ss -- r: HH.MMSSss )
+\    TIME                 \ (0.0 0.0 0.0) SSSSS.ss
+\    f.s cr
+    FDUP                 \ SSSSS.ss   SSSSS.ss
+\    f.s cr
+    FDUP FTRUNC F-       \ SSSSS.ss   0.ss    
+\    f.s cr
+    10000.0E0 F/         \ SSSSS.ss   0.0000ss
+\    f.s cr
+    FSWAP                \ 0.0000ss   SSSSS.ss
+\    f.s cr
+    FTRUNC               \ 0.0000ss   SSSSS.00
+\    f.s cr
+    3600.0E0 F/          \ 0.0000ss   HH.hhhhhhh
+\ f.s cr
+    FDUP                 \ 0.0000ss   HH.hhhhhhh   HH.hhhhhhh
+\ f.s cr
+    FTRUNC               \ 0.0000ss   HH.hhhhhhh   HH.000
+\ f.s cr
+     FROT                \ HH.hhhhhhh  HH.000    0.0000ss  
+\    f.s cr
+    F+ FSWAP             \ HH.0000ss  HH.hhhhhhh        
+\ f.s cr
+    FDUP FTRUNC F-       \ HH.0000ss  0.hhhhhh   
+\ f.s cr
+    60.0E0 F*            \ HH.0000ss  MM.mmmmm
+\ f.s cr
+    FDUP                 \ HH.0000ss  MM.mmmmm     MM.mmmmm
+\ f.s cr
+    FTRUNC               \ HH.0000ss  MM.mmmmm     MM.000
+\ f.s cr
+    100.0E0 F/           \ HH.0000ss  MM.mmmmm     0.MM
+\ f.s cr
+    FROT F+ FSWAP        \ HH.MM00ss  MM.mmmmm        
+\ f.s cr
+    FDUP FTRUNC F-       \ HH.MM00ss  0.mmmmm   
+\ f.s cr
+    60.0E0 F*            \ HH.MM00ss  SS.0000xxx
+\ f.s cr
+    FTRUNC               \ HH.MM00ss  SS.00
+\ f.s cr
+    10000.0E0 F/ F+      \ HH.MMSSss
+\    f.s cr
+    D_?SINIT
+;
+\ --------------------------------------------------------------
+\
+\
+\ X<>Z ---------------------------------------------------------
+\ swap the gforth float stack, then X
+\ ( r1 r2 -- r2 r1 )  
+\    X      Y      Z      T      L
+\    Z      Y      X      T      L
+: X<>Z   D_?SINIT  X<>Y RDN X<>Y RUP X<>Y ;
+\ --------------------------------------------------------------
+\
+\
+\ X<>T ---------------------------------------------------------
+\ ( r1 r2 r3 r4 -- r4 r2 r3 r1 )  
+\    X      Y      Z      T      L
+\    T      Y      Z      X      L
+: X<>T   D_?SINIT X F@ TBX F! T F@ X F! TBX F@ T F! D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ X<> ---------------------------------------------------------
+\ swap the gforth float variable value with X
+\ ( addr -- )
+\ (      -- )  
+\    X      Y      Z      T      L
+\    Val    Y      T      T      L
+: X<>   D_?SINIT
+    DUP     \ integer: addr addr              
+    F@      \ integer: addr                float:  val
+    X F@    \ integer: addr                float:  val    XValue 
+    FSWAP   \ integer: addr                float:  XValue val 
+    X F!    \ integer: addr                float:  XValue 
+    F!
+    D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ Y<>Z ---------------------------------------------------------
+\ swap the gforth float stack, then X
+\ ( r1 r2 r3 -- r1 r3 r2 )  
+\    X      Y      Z      T      L
+\    X      Z      Y      T      L
+: Y<>Z   D_?SINIT  RDN X<>Y RUP ;
+\ --------------------------------------------------------------
+\
+\
+\ X*2 ----------------------------------------------------------
+\ ( r1 r2 -- r2 r1 )  
+\    X        Y      Z      T      L
+\    2*X      Y      Z      T      X
+: X*2   D_?SINIT  2.0E X F@ F* X F! D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ X/2 ----------------------------------------------------------
+\ ( r1 r2 -- r2 r1 )  
+\    X        Y      Z      T      L
+\    X/2.     Y      Z      T      X
+: X/2  D_?SINIT  X F@ 2.0E F/ X F! D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ X+2 ----------------------------------------------------------
+\ ( r1 r2 -- r2 r1 )  
+\    X        Y      Z      T      L
+\    X+2      Y      Z      T      X
+: X+2   D_?SINIT  2.0E X F@ F+ X F! D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ X<>L ---------------------------------------------------------
+\ swap the gforth float stack, then X
+\ from MAFO.TXT
+\ ( r1 r2 -- r2 r1 )  
+\    X      Y      Z      T      L
+\    L      Y      Z      T      X
+: X<>L D_?SINIT  X F@ TB F!  L F@ X F!  TB F@ L F!  D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ Z<>T ---------------------------------------------------------
+\    X      Y      Z      T      L
+\    X      Y      T      Z      L
+: Z<>T D_?SINIT  Z F@ TBZ F!  T F@ Z F!  TBZ F@ T F!  D_RPNREC ;
+\ --------------------------------------------------------------
+\
+\
+\ X<0? ---------------------------------------------------------
+\    X      Y      Z      T      L
+\    X      Y      T      Z      L
+: X<0? D_?SINIT FDUP F0< ;
+\ --------------------------------------------------------------
+\
+\
+\ FS. ----------------------------------------------------------
+\ from file DISPLAY.fth 
+\
+\ show the Float Stack content mostly during debugging on the
+\ HP71B hardware
+\
+\ Execution/Inputs: nothing
+\ Outputs: the stack
+\ Use: FS. <return>
+\ T= 2 
+\ Z= 7 
+\ Y= -3 
+\ X= 8 
+\ L= 3 
+\  OK { 0 } 
+\
+\ Modules used
+\   FORTH/ASSEMBLER
+\
+\ under CC BY SA CreativeCommons 4.0
+\
+\ change log
+\   see file DISPLAY.fth 
+: FS. CR RUP ." T=  " F. 
+    RUP CR ." Z=  " F. 
+    RUP CR ." Y=  " F. 
+    RUP CR ." X=  " F. 
+    CR X<>L ." L=  " F. X<>L CR ;
+\ --------------------------------------------------------------
+\
+\
+\ FV. ----------------------------------------------------------
+\ from file DISPLAY.fth 
+\
+\ show the Float variable content mostly during debugging on the
+\ HP71B hardware
+\ like VIEW of HP41
+\
+\ Execution/Inputs: nothing
+\ Outputs: the stack
+\ Use: FV. <return>
+\ X FV.
+\ 9.000000 
+\ OK { 0 } 
+\
+\ Modules used
+\   FORTH/ASSEMBLER
+\
+\ under CC BY SA CreativeCommons 4.0
+\
+\ change log
+\   see file DISPLAY.fth 
+: FV. DUP X<> ."  " F. X<> ;
 \ --------------------------------------------------------------
 \
 \
