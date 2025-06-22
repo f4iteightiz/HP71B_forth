@@ -76,3 +76,6 @@ Forth words in HP71B ASM (assembler) for stack and float variable algebra (simil
 
 Example 6: EPER.TXT
 Forth words AGM and EPER in HP71B ASM (assembler) for calculating the AGM and Ellipse Perimeter by iterated functions.
+
+Example 7: LAMBERT.ASM
+Forth words LW0 and LW1 in assembler for calculation of the lambert function, branch 0 and -1. Newest high speed calculation, high precision iterated function (anno 2017).
