@@ -79,3 +79,5 @@ Forth words AGM and EPER in HP71B ASM (assembler) for calculating the AGM and El
 
 Example 7: LAMBERT.ASM
 Forth words LW0 and LW1 in assembler for calculation of the lambert function, branch 0 and -1. Newest high speed calculation, high precision iterated function (anno 2017).
+
+Example 8: W.SRC; it shows an example of a HP41 code translated into HP71B similar forth words. W2.SRC is the same code but without comments.
