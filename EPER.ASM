@@ -1,5 +1,13 @@
        FORTH
 *
+****************************************************************
+*                           HEADER
+*
+* under BY NC SA CreativeCommons 4.0
+* https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
+* pascaldagornet@yahoo.de
+****************************************************************
+*
 * columns..
 * 1:label  8:mnemonic  15:modifier  from 24:comments
 *
@@ -292,6 +300,8 @@ mp2-15 GOVLNG =MP2-15
 mp2-12 GOVLNG =MP2-12
 dv2-15 GOVLNG =DV2-15
 ad2-15 GOVLNG =AD2-15
+cslc5  GOVLNG =CSLC5
+csrc5  GOVLNG =CSRC5
 *
 rcscr  GOVLNG =RCSCR
 * look at MATH ROM for GAMMA which has an improved fct rcscr+ ??
