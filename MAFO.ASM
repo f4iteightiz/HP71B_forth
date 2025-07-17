@@ -29,7 +29,8 @@
 =SQR15  EQU #0C534           idsv3 pdf page 1401 SQR(A,B) result in (A,B)
 =XYEX   EQU #0C697           Exchange (A,B) with (C,D)  pdf idsv3 page 1408
 =SPLITA EQU #0C6BF           Extend (A) into (A,B) pdf idsv3 page 1408
-=CLRFRC EQU #0C6F4           (A,B) to (A,B) w/o fractio part page 1409 exit in DECMODE carry set if no frac part
+=CLRFRC EQU #0C6F4           (A,B) to (A,B) w/o fractio part page 1409 
+*                              exit in DECMODE carry set if no frac part
 =FRAC15 EQU #0C70E           frac of (A,B) into (A,B) page 1411 pdf ids3
 =IF12A  EQU #0C739           entry A. return where the decimal point is. 
 *                              Out is the number in P. Page 1412 If E<0, P =14 etc.
@@ -75,14 +76,21 @@
 =OT     EQU #2FC00           T address
 *
 * FORTH entry points:
+=$X     EQU #E0091           put addr var into stack ids asm pdf p160
+=$Y     EQU #E00AA
+=$Z     EQU #E00C3
+=$T     EQU #E00DC
+=$L     EQU #E00F5
 =FEND   EQU #E08E9           PUTABX,GETFP
 =CHS    EQU #E1518           change X sign; dont change LastX; asm ids pdf page 259
 =NUMST  EQU #E1718           uMODES, SAVEFP,GETX+L.. GET X INTO (A,B); put X into L; asm ids pdf page 266
 =MOD    EQU #E1CA1           modulo ids Forth/ASM pdf page 287
 =ABS    EQU #E1A23           (n -- |n|)
-=XXYY   EQU #E212D           comparison of a(X?) and c(Y?) (or zero) pdf page 304 Forth/asm ids, out with GETFP
+=XXYY   EQU #E212D           comparison of a(X?) and c(Y?) (or zero) 
+*                              pdf page 304 Forth/asm ids, out with GETFP
 =CMPST  EQU #E216C           comparison operator routine pdf page 304 Forth/asm ids, out with SAVEFP
 =X<>Y   EQU #E23A5           X<>Y pdf page 313 Forth/asm
+=SWAP   EQU #E24DE           p317
 =OVER   EQU #E2538           (n1 n2 -- n1 n2 n1)
 =FDROP  EQU #E30FB           drop X content; X become Y value; dont change LastX 
 *                              pdf page 371 Forth/asm ids
@@ -328,352 +336,140 @@
 ****************************************************************
 * X<> exchange the value in the variable with the value in X
 * use: FVAR1 X<>
-* tested 15july2024
-* use like the word X<=0? the ST flag for all variants below?
+* tested 16Jul2025
        WORD 'X<>'
-       P=     0
-       LC(5)  =OX            put X-address into C(A)
-       CD0EX                 exchange data pointer address D0 with C(A)
-       R2=C                  save D0
-       A=DAT0 W              A = value of X from its address in C(A)
-       R0=A                  R0 = X
-       C=DAT1 A              copy data at address in D1 into C(A)
-       CD0EX
-       A=DAT0 W              copy data at address in D0 (in C(A)) into W in A
-       R1=A                  R1 = Reg value
-       P=     0
-       LC(5)  =OX             put X-address into C(A)
-       CD0EX                 exchange data pointer address D0 with C(A)
-       A=R1
-       DAT0=A W              X has now value of Reg
-       C=DAT1 A              copy data at address in D1 into C(A)
-       CD0EX                 exchange C(A) with D0
-       A=R0
-       DAT0=A W              value of X into variable
-       C=R2
-       D0=C                  restore D0
-       D1=D1+ 5              return nothing on data stack
-       RTNCC
+       GOSBVL =$X
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* X<>Z exchange the HP41 registers, similar to X<>Y. tested 12 July 2024
+* X<>Z exchange the HP41 registers, similar to X<>Y. 
+*   tested 16Jul2025
        WORD 'X<>Z'
-       P=     0
-       LC(5)  =OX            put X-address into field A of register C low order 5 nibbles
-       CD0EX                 put data pointer D0 into C(A)
-       R1=C                  save D0 into R1
-       C=DAT0 W              C = value of X (which is in D0)
-       D0=D0+ 16             D0 has now Y addr
-       D0=D0+ 16             D0 has now Z addr
-       A=DAT0 W              put value of Z into A via addr in D0
-       DAT0=C W              Z = value of X
-       D0=D0- 16
-       D0=D0- 16             D0 -> X
-       DAT0=A W              X = value of Z
-       C=R1
-       D0=C                  restore D0
-       RTNCC
+       GOSBVL =$X
+       GOSBVL =$Z
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* X<>T exchange the HP41 registers, tested 12 July 2024
+* X<>T exchange the HP41 registers, tested 16Jul2025
        WORD 'X<>T'
-       P=     0
-       LC(5)  =OX            put X-address into field A of register C low order 5 nibbles
-       CD0EX                 put data pointer D0 into C(A)
-       R1=C                  save D0 into R1
-       C=DAT0 W              C = value of X
-       D0=D0+ 16             D0 -> Y
-       D0=D0+ 16             D0 -> Z
-       D0=D0+ 16             D0--> T
-       A=DAT0 W              put value of T into A
-       DAT0=C W              T = value of X
-       D0=D0- 16
-       D0=D0- 16
-       D0=D0- 16             D0 -> X
-       DAT0=A W              X = value of T
-       C=R1
-       D0=C                  restore D0
-       RTNCC
+       GOSBVL =$X
+       GOSBVL =$T
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* X<>L exchange the HP41 registers, tested 12 July 2024
+* X<>L exchange the HP41 registers, tested 16Jul2025
        WORD 'X<>L'
-       P=     0
-       LC(5)  =OX            put X-address into field A of register C low order 5 nibbles
-       CD0EX                 put data pointer D0 into C(A)
-       R1=C                  save D0 into R1
-       C=DAT0 W              C = value of X
-       D0=D0- 16             D0--> L
-       A=DAT0 W              put value of L into A
-       DAT0=C W              L = value of X
-       D0=D0+ 16             D0 -> X
-       DAT0=A W              X = value of L
-       C=R1
-       D0=C                  restore D0(A) from C(A)
-       RTNCC
+       GOSBVL =$X
+       GOSBVL =$L
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
 * Y<> exchange the value in the variable with the value in Y
-*       use: FVAR1 Y<>
-       WORD 'Y<>'
-       P=     0
-       LC(5)  =OY
-       CD0EX
-       R2=C
-       A=DAT0 W
-       R0=A
-       C=DAT1 A
-       CD0EX
-       A=DAT0 W
-       R1=A
-       P=     0
-       LC(5)  =OY
-       CD0EX
-       A=R1
-       DAT0=A W
-       C=DAT1 A
-       CD0EX
-       A=R0
-       DAT0=A W
-       C=R2
-       D0=C
-       D1=D1+ 5
-       RTNCC
+*   tested 16Jul2025
+*   use: FVAR1 Y<>
+       GOSBVL =$Y
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* Y<>Z exchange the HP41 registers
+* Y<>Z exchange the HP41 registers tested 16Jul2025
        WORD 'Y<>Z'
-       P=     0
-       LC(5)  =OY            put Y-address into field A of register C low order 5 nibbles C(A)
-       CD0EX                 exchange data pointer address D0 with C(A)
-       R1=C                  save D0 into R1
-       C=DAT0 W              C = value of Y from its address in C(A)
-       D0=D0+ 16             D0 show now towards Z
-       A=DAT0 W              put value of Z (from address D0) into A
-       DAT0=C W              Z = value of Y
-       D0=D0- 16             D0 -> Y
-       DAT0=A W              Y = value of Z
-       C=R1
-       D0=C                  restore D0
-       RTNCC
+       GOSBVL =$Y
+       GOSBVL =$Z
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* Y<>T exchange the HP41 registers tested 17 July 2024
+* Y<>T exchange the HP41 registers tested 16Jul2025
        WORD 'Y<>T'
-       P=     0
-       LC(5)  =OY
-       CD0EX
-       R1=C
-       C=DAT0 W
-       D0=D0+ 16
-       D0=D0+ 16
-       A=DAT0 W
-       DAT0=C W
-       D0=D0- 16
-       D0=D0- 16
-       DAT0=A W
-       C=R1
-       D0=C
-       RTNCC
+       GOSBVL =$Y
+       GOSBVL =$T
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* Y<>L exchange the HP41 registers tested 17 July 2024
+* Y<>L exchange the HP41 registers tested 16Jul2025
        WORD 'Y<>L'
-       P=     0
-       LC(5)  =OY
-       CD0EX
-       R1=C
-       C=DAT0 W
-       D0=D0- 16
-       D0=D0- 16
-       A=DAT0 W
-       DAT0=C W
-       D0=D0+ 16
-       D0=D0+ 16
-       DAT0=A W
-       C=R1
-       D0=C
-       RTNCC
+       GOSBVL =$Y
+       GOSBVL =$L
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* Z<> exchange the value in the variable with the value in Z tested 17 July 2024
-* use: FVAR1 Z<>
+* Z<> exchange the value in the variable with the value in Z 
+*   tested 16Jul2025
+*   use: FVAR1 Z<>
        WORD 'Z<>'
-       P=     0
-       LC(5)  =OZ
-       CD0EX
-       R2=C
-       A=DAT0 W
-       R0=A
-       C=DAT1 A
-       CD0EX
-       A=DAT0 W
-       R1=A
-       P=     0
-       LC(5)  =OZ
-       CD0EX
-       A=R1
-       DAT0=A W
-       C=DAT1 A
-       CD0EX
-       A=R0
-       DAT0=A W
-       C=R2
-       D0=C
-       D1=D1+ 5
-       RTNCC
+       GOSBVL =$Z
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* Z<>T exchange the HP41 registers, tested July 11 2024
+* Z<>T exchange the HP41 registers, tested 16Jul2025
        WORD 'Z<>T'
-       P=     0
-       LC(5)  =OZ
-       CD0EX
-       R1=C
-       C=DAT0 W
-       D0=D0+ 16
-       A=DAT0 W
-       DAT0=C W
-       D0=D0- 16
-       DAT0=A W
-       C=R1
-       D0=C
-       RTNCC
+       GOSBVL =$T
+       GOSBVL =$Z
+       GOTO  FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* Z<>L exchange the HP41 registers tested 17 July 2024
+* Z<>L exchange the HP41 registers tested 16Jul2025
        WORD 'Z<>L'
-       P=     0
-       LC(5)  =OZ
-       CD0EX
-       R1=C
-       C=DAT0 W
-       D0=D0- 16
-       D0=D0- 16
-       D0=D0- 16
-       A=DAT0 W
-       DAT0=C W
-       D0=D0+ 16
-       D0=D0+ 16
-       D0=D0+ 16
-       DAT0=A W
-       C=R1
-       D0=C
-       RTNCC
+       GOSBVL =$L
+       GOSBVL =$Z
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* T<> exchange the value in the variable with the value in T. tested 17 July 2024
-*       use: FVAR1 T<>
+* T<> exchange the value in the variable with the value in T. 
+*   tested 16Jul2025
+*   use: FVAR1 T<>
        WORD 'T<>'
-       P=     0
-       LC(5)  =OT
-       CD0EX
-       R2=C
-       A=DAT0 W
-       R0=A
-       C=DAT1 A
-       CD0EX
-       A=DAT0 W
-       R1=A
-       P=     0
-       LC(5)  =OT
-       CD0EX
-       A=R1
-       DAT0=A W
-       C=DAT1 A
-       CD0EX
-       A=R0
-       DAT0=A W
-       C=R2
-       D0=C
-       D1=D1+ 5
-       RTNCC
+       GOSBVL =$T
+       GOTO  FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* T<>L exchange the HP41 registers. tested 17 July 2024
+* T<>L exchange the HP41 registers. tested 16Jul2025
        WORD 'T<>L'
-       P=     0
-       LC(5)  =OT
-       CD0EX
-       R1=C
-       C=DAT0 W
-       D0=D0- 16
-       D0=D0- 16
-       D0=D0- 16
-       D0=D0- 16
-       A=DAT0 W
-       DAT0=C W
-       D0=D0+ 16
-       D0=D0+ 16
-       D0=D0+ 16
-       D0=D0+ 16
-       DAT0=A W
-       C=R1
-       D0=C
-       RTNCC
+       GOSBVL =$T
+       GOSBVL =$L
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
-* L<> exchange the value in the variable with the value in L tested 17 July 2024
-*       use: FVAR1 L<>
+* L<> exchange the value in the variable with the value in L 
+*   tested 16Jul2025
+*   use: FVAR1 L<>
        WORD 'L<>'
-       P=     0
-       LC(5)  =OL
-       CD0EX
-       R2=C
-       A=DAT0 W
-       R0=A
-       C=DAT1 A
-       CD0EX
-       A=DAT0 W
-       R1=A
-       P=     0
-       LC(5)  =OL
-       CD0EX
-       A=R1
-       DAT0=A W
-       C=DAT1 A
-       CD0EX
-       A=R0
-       DAT0=A W
-       C=R2
-       D0=C
-       D1=D1+ 5
-       RTNCC
+       GOSBVL =$L
+       GOTO   FVE
 ****************************************************************
 *
 *
 ****************************************************************
 * <F> exchange the values of the 2 float variables
-* tested 26 July 2024
+* tested 16Jul2025
 * use: FVAR1 FVAR2 <F> 
        WORD '<F>'
-       GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
+FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
        C=DAT1 A              copy data at 1st address in D1 into C(A)
        CD0EX                 exchange C(A) with D0
        A=DAT0 W              value into A
@@ -1366,12 +1162,13 @@
 *
 *
 ****************************************************************
-* X<0?  check if the value in X is <0 then put 0 (false) 
+* check if the value in X with 0 then put 0 (false) 
 *   or -1 (true) into the integer stack
 *   similar to HP41; however use of an integer stack instead of
 *   program counter jump or not (like the Forth word X=0?)
 *   no float stack change
 *   tested 21Aug2024
+* X<0?
        WORD 'X<0?'
        ST=1   0
        GOSBVL =CMPST
@@ -1388,6 +1185,12 @@
        ST=1   0
        GOSBVL =CMPST
        P=     5
+       GOTO   CMP0
+* X=>0?                      added 15 Mai 2025
+       WORD 'X=>0?'
+       ST=1   0
+       GOSBVL =CMPST
+       P=     6              see idsv3p1486 TST15
        GOTO   CMP0
 * X>0?
        WORD 'X>0?'
@@ -1665,7 +1468,7 @@ CMP0   GOVLNG =XXYY
        GOSBVL =CLRFRC        sssseee,00000 into (A,B); carry set if ii=00
        GONC   nadd1          if 0,ii000 # 0,00 then dont add one
 * BRANCH: ii is ZERO .. then add 1
-       GOSUBL =RCAB1         sssseee00,000 into (A,B)
+       GOSUB  =RCAB1         sssseee00,000 into (A,B)
        GOSBVL =ADDONE
        GOSBVL =STAB1         store sssseee01,000 (A,B) into (R0,R1)
 *
@@ -2648,6 +2451,170 @@ HM0    GOSBVL =uRES12        A/B into C
        GOSBVL =GETFP
        DAT1=A A
        RTNCC
+****************************************************************
+*
+****************************************************************
+* CFV copy the value of the 1st in stack float variable to the second
+* tested  20.05.2025
+* use: FVAR1 FVAR2 CFV will put float value of FVAR2  into FVAR1
+       WORD 'CFV'
+CFVL   GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
+       C=DAT1 A              copy data at 1st stack address (addr1) in D1 into C(A)
+       CD0EX                 exchange C(A) with D0
+       A=DAT0 W              value of 1st stack address into A
+       D1=D1+ 5
+       C=DAT1 A              copy 2nd address (addr2) on stack in D1 into C(A)
+       CD0EX
+       DAT0=A W              Store value1 at addr2
+       GOSBVL =GETFP         restore pointers: CPU reg, D0, D1
+       D1=D1+ 10             return nothing on data stack
+       RTNCC
+****************************************************************
+*
+****************************************************************
+* DFV download the value of the 2nd float variable in the stack 
+*   into the first address on the stack
+* tested  20.05.2025
+* use: FVAR1 FVAR2 DFV will put float value of FVAR1 into FVAR2
+       WORD 'DFV'
+       GOSBVL =SWAP
+       GOTO   CFVL
+****************************************************************
+*
+****************************************************************
+* CRRV : Control Register parameters Retrieving from Variable
+* support function for easier use of REGMOVE and REGSWAP of HP41CX
+* use FVAR CRRV will put SSS DDD NNN into integer stack 
+*       SSS   is the start register address integer
+*       DDD   is the destination test value integer
+*       NNN   is the increment value integer
+*       FVAR  is the float variable where SSS.DDDNNN is stored
+* when 1.022003 (sss.dddnnn) in X register
+* X CRRV will put  1  22  3     into integer stack
+*
+* test 20 May 2025
+* 777.888110000 FENTER Y CRRV S. 
+*  >> [ 777 888 110 ]  OK { 3 } 
+*
+****************************************************************
+       WORD 'CRRV'
+       GOSBVL =SAVEFP
+       C=DAT1 A              copy data at address in D1 into C(A)
+       CD0EX                 exchange C(A) with D0 pointer
+       A=DAT0 W              value sss,dddnnnxxx into A
+       XM=0                  ERR at execution if not included
+       R0=A
+* 10000 in (C)
+       C=0    W
+       P=     14
+       C=C+1  P
+       P=     0
+       LCHEX  6
+       A=R0
+       SETDEC
+       GOSBVL =MP2-12        sssdddnnn,xxx into (A,B)
+       GOSBVL =CLRFRC        sssdddnnn,000 into (A,B)
+       GOSBVL =STAB1         store sssdddnnn,000 (A,B) into (R0,R1)
+*
+       C=0    W
+       P=     14
+       C=C+1  P
+       P=     0
+       LCHEX  997            0,001 now in C
+*
+       GOSUBL =RCAB1         sssdddnnn,000 into (A,B)
+       SETDEC
+       GOSBVL =MP1-12        sssddd,nnn000 into (A,B)
+       GOSBVL =CLRFRC        sssddd,00000 into (A,B); carry set if nnn=00
+       GONC   nadd3          if 0,nnn000 # 0,00 then dont add one
+* BRANCH: nnn is ZERO .. then add 1
+       GOSUBL =RCAB1         sssddd000,000 into (A,B)
+       GOSBVL =ADDONE
+       GOSBVL =STAB1         store sssddd001,000 (A,B) into (R0,R1)
+*
+* BRANCH: nnn IS NOT ZERO from here
+*
+nadd3  C=0    W
+       P=     14
+       C=C+1  P
+       P=     0
+       LCHEX  994            0,000001 now in C
+       GOSUBL =RCAB1         sssdddnnn,000 into (A,B)
+       SETDEC
+       GOSBVL =MP1-12        sss,dddnnn000 into (A,B)
+       GOSBVL =STAB1         store sss,dddnnn000 (A,B) into (R0,R1)
+*
+       GOSBVL =INFR15
+       ?P#    14             test if (A,B) is not like 0,dddnnn000 which means ssss # 0
+       GOYES  SNZ1           sss is NOT ZERO
+       A=0    W
+       GOTO   SSZ1
+SNZ1   GOSBVL =CLRFRC        sss,000 into (A,B)
+       GOSBVL =uRESD1        into (C)
+       A=C    W
+SSZ1   GOSBVL =FLTDH         A into 5 nibs hex A(A)
+*
+       DAT1=A A              put sss into integer stack
+*
+       D1=D1- 5
+       GOSUBL =RCAB1         value sss,dddnnn000 into (A,B)
+       GOSBVL =INFR15
+       ?P=    14             test if (A,B) is like 0,dddnnn000 which means ssss = 0
+       GOYES  S0Z1           sss is ZERO
+       GOSUBL =RCAB1         value sss,dddnnn000 into (A,B)
+       GOSBVL =FRAC15        0,dddnnn000 in (A,B)
+       GOSBVL =STAB1         store 0,dddnnn000 (A,B) into (R0,R1)
+S0Z1   C=0    W
+       P=     14
+       C=C+1  P
+       P=     0
+       LCHEX  3              1000 in (C)
+       GOSUBL =RCAB1         value 0,dddnnn000 into (A,B)
+       SETDEC                dont forget this before MP1-12
+       GOSBVL =MP1-12        ddd,nnn000 into (A,B)
+       GOSBVL =STAB1         store ddd,nnn000 (A,B) into (R0,R1)
+       GOSBVL =CLRFRC        ddd,00000 into (A,B)
+       GOSBVL =uRESD1        ddd,00 into (C)
+       A=C    W
+       GOSBVL =FLTDH
+       DAT1=A A              put ddd into integer stack
+* fine till here
+       D1=D1- 5
+       GOSUBL =RCAB1         value ddd,nnn000 into (A,B)
+       GOSBVL =INFR15
+       ?P=    14             test if A is like 0,nnn000 which means ddd = 0
+       GOYES  SNZ4           ddd is ZERO
+       GOSUBL =RCAB1         value ddd,nnn000 into (A,B)
+       GOSBVL =FRAC15        0,nnn000 in (A,B)
+       GOSBVL =STAB1         0,nnn000 in (R0,R1)
+SNZ4   C=0    W
+       P=     14
+       C=C+1  P
+       P=     0
+       LCHEX  3              1000 in (C)
+       GOSUBL =RCAB1         0,nnn000 in (A,B)
+       SETDEC                dont forget this before MP1-12
+       GOSBVL =MP1-12        nnn,000 into (A,B)
+       GOSBVL =uRESD1        nnn,000 into (C)
+       A=C    W              nnn,000 into (A)
+       GOSBVL =FLTDH
+       DAT1=A A              put nnn into integer stack
+       GOSBVL =GETFP
+       D1=D1- 10
+       RTNCC
+*
+****************************************************************
+*
+* standalone routine 
+* recall the values of R0/R1 into A/B
+* in additional to the existing =STAB1 =EXAB1 =RCCD1 =STAB2 
+*   =EXAB2 =RCCD2 =STCD2
+*
+*RCAB1  A=R1
+*       B=A    W
+*       A=R0
+*       RTN
+*
 ****************************************************************
 *
        END
