@@ -84,8 +84,8 @@
 =FEND   EQU #E08E9           PUTABX,GETFP
 =CHS    EQU #E1518           change X sign; dont change LastX; asm ids pdf page 259
 =NUMST  EQU #E1718           uMODES, SAVEFP,GETX+L.. GET X INTO (A,B); put X into L; asm ids pdf page 266
-=MOD    EQU #E1CA1           modulo ids Forth/ASM pdf page 287
-=ABS    EQU #E1A23           (n -- |n|)
+=ABS    EQU #E1A23           (n -- |n|) ids Forth pdf page 275
+=MOD    EQU #E1CA1           modulo ids Forth pdf page 287
 =XXYY   EQU #E212D           comparison of a(X?) and c(Y?) (or zero) 
 *                              pdf page 304 Forth/asm ids, out with GETFP
 =CMPST  EQU #E216C           comparison operator routine pdf page 304 Forth/asm ids, out with SAVEFP
@@ -123,6 +123,8 @@
 *
 *
 * general remarks:
+*   use scripts for deleting all * comments and after column 30 or 31
+*    be carefull the long LCHEX commands are not shortened during this process
 *   uRES12 MODES GETX+L using D1 therefore D1 has to be saved before its use
 *   SETDEC has to be used before most of math functions
 *   ADDONE and SUBONE has a warning message WRN; workaround so far not found
@@ -1072,8 +1074,9 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
        A=R0
        D0=(5) =OX
        DAT0=A W              Result into X
-       GOSBVL =GETFP
-       RTNCC
+*       GOSBVL =GETFP
+*       RTNCC
+       GOVLNG =GETFP
 ****************************************************************
 *
 *
@@ -1092,7 +1095,7 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
 * tested Aug22 2024
 * use  5 TONE in Forth prompt
        WORD 'TONE'
-       GOSBVL =ABS           for positive whatever input was
+*       GOSBVL =ABS           for positive whatever input was
        GOSBVL =SAVEFP
        A=DAT1 A
        GOSBVL =HDFLT         change A(A) to float A(W) 12 digits for further calc. exit with DEC mode
@@ -1102,14 +1105,14 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
        GOSBVL =MP2-12        result into (A,B)
        GOSBVL =uRESD1        result into C
        R0=C
-       C=0    S              S instead of W for less size?
+       C=0    S 
        P=     0
        LCHEX  394000000000002
        A=R0
        GOSBVL =AD2-12        result into (A,B)
        GOSBVL =uRESD1        result into C as 12 digit
        R0=C                  R0 Hz 
-       C=0    W
+       C=0    S
        P=     0
        LCHEX  280000000000999 C duration
        SETDEC
@@ -1156,8 +1159,9 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
        A=R0
        C=R1
        GOSBVL =BP
-       GOSBVL =GETFP
-       RTNCC
+*       GOSBVL =GETFP
+*       RTNCC
+       GOVLNG =GETFP
 ****************************************************************
 *
 *
