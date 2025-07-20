@@ -1063,7 +1063,7 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
 *
 ****************************************************************
 * PI : put PI into X in the stack. uplift the float stack. lastx not changed (like HP41)
-* tested 23Aug2024
+* tested July 20 2025
        WORD 'PI'
        GOSBVL =SAVEFP
        C=0    S
@@ -1092,7 +1092,7 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
 * length 0,28s
 * however inputs higher than 9 will be accepted
 * negative values -8 (example) will be taken as 8
-* tested Aug22 2024
+* tested July 20 2025
 * use  5 TONE in Forth prompt
        WORD 'TONE'
 *       GOSBVL =ABS           for positive whatever input was
@@ -1101,7 +1101,7 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
        GOSBVL =HDFLT         change A(A) to float A(W) 12 digits for further calc. exit with DEC mode
        C=0    S
        P=     0
-       LCHEX  437777777777001 
+       LCHEX  437777777777001
        GOSBVL =MP2-12        result into (A,B)
        GOSBVL =uRESD1        result into C
        R0=C
@@ -1134,7 +1134,7 @@ FVE    GOSBVL =SAVEFP        save pointers: CPU reg, D0, D1
 * TONE 8 = 788 Hz
 * TONE 7 = 629 Hz
 * The book also says that the duration of the standard tones is 0,28 seconds.
-* tested Aug4 2024
+* tested July 20 2025
        WORD 'BEEP41'
        GOSBVL =SAVEFP
        C=0    W
