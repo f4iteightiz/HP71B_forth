@@ -74,6 +74,7 @@ S" H71B1.fth" INCLUDED
 \ change log
 \   date 2023 05 08 creation (based on PERE12 for HP41)
 \   date 2024 06 02 ready upload to github
+\   date 2025 08 29 delete G_F. and replace by F.
 \
 FVARIABLE B            \ b half ellipse perimeter
 FVARIABLE A            \ a
@@ -84,7 +85,7 @@ DECIMAL
 \                                                  
 : PERE12 ( r1=a  r2=b  -- r=perimeter )
     B STO
-    CR ." Param B:  " G_F. CR         \ optional Show X doesnt alter the content of X
+    CR ." Param B:  " F. CR         \ optional Show X doesnt alter the content of X
     \     ." Line below optional which will be deleted later with awk script"
     \     ." because it content a word with D_"
 \    B D_F.@ CR          \ optional show the content of the variable
@@ -94,7 +95,7 @@ DECIMAL
     
     
     IF G_F+
-	." Param A:  " G_F. CR
+	." Param A:  " F. CR
 \	 ." line 96  " D_RPNS              \ optional show the content of the stacks
 	4.0E0
 \	 ." line 98  " D_RPNS              \ optional show the content of the stacks
@@ -103,7 +104,7 @@ DECIMAL
 \     ." line 101  " D_RPNS              \ optional show the content of the stacks
     X<>Y
 \     ." line 103 " D_RPNS              \ optional show the content of the stacks
-    ." Param A:  " G_F. CR
+    ." Param A:  " F. CR
     A STO
 \    A D_F.@        \  optional show the content of the variable
 \     ." line 107  " D_RPNS
@@ -114,7 +115,7 @@ DECIMAL
 \         ." line 112  " D_RPNS              \ optional show the content of the stacks
 	G_F*
 \         ." line 114  " D_RPNS              \ optional show the content of the stacks
-	." ELLIPSE PERIM = " G_F. EXIT ELSE THEN
+	." ELLIPSE PERIM = " F. EXIT ELSE THEN
 \     ." line 116  " D_RPNS               \ optional show the content of the stacks
     FENTER G_F*                          \ A*A     B
 \     ." line 118  " D_RPNS              \ optional show the content of the stacks
@@ -186,7 +187,7 @@ DECIMAL
 \     ." line 184  " D_RPNS          \ optional show the content of the stacks
     \
     \ ***********      OUTPUT the result   *************
-    ." ELLIPSE PERIM = " G_F. ;
+    ." ELLIPSE PERIM = " F. ;
 \
 \ --------------------------------------------------------------
 \ for testing the program above
