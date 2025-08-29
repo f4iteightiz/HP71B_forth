@@ -447,7 +447,12 @@ F-
 F+
 N!
 N@
-F.
+\
+( rewriting F. to make it like HP71B )
+: F.
+X F@ F. 
+;
+(
 LN
 H.
 .S
@@ -999,6 +1004,25 @@ STRING-ARRAY
 \ >            Like in GFORTH
 \ --------------------------------------------------------------
 \
+\ FSCRATCH -----------------------------------------------------
+( FSCRATCH : Floating point scratch variable used in TIMED )
+FVARIABLE FSCRATCH
+\ --------------------------------------------------------------
+\
+\ <F> ----------------------------------------------------------
+\ exchange the float value of both variables
+\ tested..
+\ ( addr1 addr2 -- )
+: <F>
+    DUP                 \ addr1 addr2 addr2    
+    F@ FSCRATCH F!      \ addr1 addr2          ( fvalue2 in FSCRATCH )
+    SWAP DUP            \ addr2 addr1 addr1
+    F@                  \ addr2 addr1          fvalue1
+    FSCRATCH F@ F!      \ addr2                fvalue1 ( fvalue2 in addr1 )
+    F!
+;
+\ --------------------------------------------------------------
+\
 \ --------------------------------------------------------------
 \ >BODY        like in gforth
 \                >body ( xt – a_addr  ) core “to-body”
@@ -1278,6 +1302,15 @@ STRING-ARRAY
 \ --------------------------------------------------------------
 \
 \
+\ CFV ----------------------------------------------------------
+\ copy the value of the 1st float variable in the stack to the second
+: CFV
+    F@
+    F!
+    ;
+\ --------------------------------------------------------------
+\
+\
 \ CHR$ ---------------------------------------------------------
 \
 \ tested 21 Sept 2023
@@ -1542,6 +1575,43 @@ STRING-ARRAY
 \ --------------------------------------------------------------
 \
 \
+\ CRRV ---------------------------------------------------------
+\
+\ read the float variable sss,dddnnn and put sss ddd nnn into the
+\ integer stack
+\ use for REGMOVE and REGSWAP
+\ tested 18 Mai 2025
+\ ( addr -- sss ddd nnn )
+: CRRV
+    f@ fdup f>s            \ Kopiere und hole den Ganzzahlteil: f sss
+    >r                     \ sss nach Rückgabestack
+    fdup f>s               \ Kopie von f, erneut sss holen
+    s>f f-                 \ f - sss = nur Nachkommastellen
+    1000000e f*             \ Nachkommastellen * 1000000 (verschiebe 6 Stellen)
+    f>s                    \ in Integer konvertieren
+    dup 1000 /             \ ddd extrahieren
+    swap 1000 mod          \ nnn extrahieren
+    \
+    dup                    \ nnn should be never 0 (minimum 1)
+    0= if
+	1 +
+	else then
+    \
+    r>                     \ sss vom Rückgabestack holen
+    rot rot
+;
+\ test
+\ 123.6780201E0 FENTER
+\ X CRRV S.  [ 123 678 20 ]  ok
+\ . 2  ok
+\ . 678  ok
+\ . 123  ok
+\ 123.6780001E0 FENTER
+\ X CRRV S.  [ 123 678 1 ]  ok
+\ 
+\ --------------------------------------------------------------
+\
+\
 \ CURRENT ------------------------------------------------------
 \
 \ ( -- addr ) like gforth
@@ -1614,6 +1684,10 @@ STRING-ARRAY
 \ n itself).
 \ --------------------------------------------------------------
 \
+\ DFV ----------------------------------------------------------
+\ copy the value of the 2nd float variable in the stack to the first
+: DFV SWAP CFV ;
+\ --------------------------------------------------------------
 \
 \ DIGIT --------------------------------------------------------
 \
@@ -5070,10 +5144,6 @@ VARIABLE SSTOUT
 \ --------------------------------------------------------------
 \
 \
-\ FSCRATCH -----------------------------------------------------
-( FSCRATCH : Floating point scratch variable used in TIMED )
-FVARIABLE FSCRATCH
-\ --------------------------------------------------------------
 \
 \
 \ FINDW --------------------------------------------------------
