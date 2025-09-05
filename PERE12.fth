@@ -207,12 +207,12 @@ DECIMAL
 \ 2 blanks between the 2 brackets for the awk script to clean up later
 \    D_CLEARSTACKS  \  optional
     3.0E0
-\    D_RPNS       \  optional anywhere: put the stack content on the screen
+    D_RPNS       \  optional anywhere: put the stack content on the screen
     11.0E0
 \    0.0E0
     \ ." Test function prior start of PERE12 which will be used later on HP71B" \ 3. = Comment for output to the screen anytime. Optional.
 \    D_RPNS       \  optional see above
-\    D_SSET       \  anywhere here or later
+    D_SSET       \  anywhere here or later
     PERE12 ;      \  call of the function which will be transfered later on an HP71B
                   \  Result must be 47.65..
 \

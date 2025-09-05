@@ -448,11 +448,7 @@ F+
 N!
 N@
 \
-( rewriting F. to make it like HP71B )
-: F.
-X F@ F. 
-;
-(
+F.
 LN
 H.
 .S
