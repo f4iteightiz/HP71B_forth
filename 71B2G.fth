@@ -340,6 +340,10 @@ D_SSET
 \ D_?SINIT  ( must be this line in case of use of the float stack  )
 D_RPNS
 (  X       Y       Z       T       L    later on HP71B STACK   )
+( )
+( original Gforth without RPN stack effects ) 
+: G_F* F* ;
+: G_F/ F/ ;
 \
 \
 \ other debug words?
@@ -704,7 +708,6 @@ STRING-ARRAY
 \ single line of a source file.
 \ ( -- str )
 \
-\ .. use
 \
 \ (HP71B)  Used in the form: " ccc"  
 \ " ABCD" TYPE
@@ -759,7 +762,7 @@ STRING-ARRAY
 \
 \ #TIB ---------------------------------------------------------
 \ ( -- addr) 
-:  #TIB  CR CR ." not implemented in gforth" CR ;
+VARIABLE #TIB  \ CR CR ." not tested in gforth" CR ;
 \ Return the address of the variable #TIB, which contains the number of bytes in the terminal input buffer.
 \ Set by QUERY.
 \ --------------------------------------------------------------
@@ -2184,7 +2187,19 @@ CR CR ." EXPECT96 not tested" CR ;
 \ https://gforth.org/manual/Floating_002dpoint-output.html
 \ converts the number in the X-register to a string.
 ( X -- str )
-: FSTR$ 12 5 0 F>STR-RDP CR CR ." FSTR$ not tested in gforth" CR ;
+: FSTR$  fdup precision s>f 10.0E0 fln G_f* fexp G_f* f>s s>f precision s>f 10.0E0 fln G_f* fexp G_f/ 5 precision 0 F>STR-RDP ." FSTR$ ok ? in gforth" CR ;
+\
+\ test gforth
+\ 1.234E0 FSTR$ TYPE
+\
+\ test HP71B
+\ 1.234 FSTR$ TYPE
+\ 1.234 OK { 0 } 
+\ 0 FIX
+\ OK { 0 } 
+\ 1.234 FSTR$ TYPE
+\ 1. OK { 0 } 
+\ 1.234E0 FSTR$ TYPE
 \ --------------------------------------------------------------
 \
 \
@@ -4096,11 +4111,17 @@ RIGHT$ ;       ( addr3 n2-n1+1 )
 \ TIB ----------------------------------------------------------
 \ ( -- addr )
 \ >>>> TIB
-: TIB  CR CR ." TIB not implemented in gforth" CR ;
+96 STRING TIBBUF
+: TIB DROP ." TIB not tested in gforth" CR ;
 \ Return the address of the terminal input buffer. The terminal input buffer can hold up to 96 characters.
 \ : TIB 1 BUFFER ;
 \ could be for HP71B.. (GROW or SHRINK will change the value)
 \ : TIB HEX 30D7C CONSTANT TIB ;
+\
+\ Test HP71B
+\
+\ Test Gforth
+\
 \ --------------------------------------------------------------
 \
 \
@@ -5434,6 +5455,22 @@ DECIMAL
 \ change log
 \   see file DISPLAY.fth 
 : FV. DUP X<> ."  " F. X<> ;
+\ --------------------------------------------------------------
+\
+\
+\ FVIP ---------------------------------------------------------
+\
+\ Take the integer part of the contents of the float variable
+\ FVIP places the result in the integer stack
+\ see the ASM word in MAFO.TXT
+\ dont touch the float stack
+: FVIP F@ F>S ;
+\ test
+\ HP71B
+\ 1.67 FVIP .
+\ 1  OK { 0 } 
+\ -3.1 FVIP .
+\ -3  OK { 0 } 
 \ --------------------------------------------------------------
 \
 \
