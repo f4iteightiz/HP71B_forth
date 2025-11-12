@@ -21,6 +21,17 @@
   (ibuffer-mark-special-buffers) ; Mark the special buffers.
   (ibuffer-toggle-marks)         ; Toggle buffers, leaving the non-special ones
   (ibuffer-do-view))             ; Show each buffer in a different window.
+;;
+;; prolog setup https://bruda.ca/emacs/prolog-mode_installation_guide
+(setq load-path (cons "/home/pascal/ellipse_perimeter" load-path))
+(autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
+  (autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
+  (autoload 'mercury-mode "prolog" "Major mode for editing Mercury programs." t)
+  (setq prolog-system 'swi)
+  (setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
+                                  ("\\.m$" . mercury-mode))
+                                auto-mode-alist))
+;;
 ;; Enable Forth mode for .fth files
 (setq auto-mode-alist (cons '("\\.fth\\'" . forth-mode) auto-mode-alist))
 ;; Set Gforth as the Forth interpreter
