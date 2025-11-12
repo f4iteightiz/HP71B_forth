@@ -119,14 +119,158 @@ FVARIABLE FMORTV
     +
     -ROT       \ addr-reg-start  N   n-target    
     DUP        \ addr..          N   n-target n-target
+    \ -8 ind
+    \ -7 regswap
+    \ -6 regmove
     \ -5 print reg according X PRREGX
     \ -4 print all reg content PRREG
     \ -3 clear all reg CLRG
     \ -2 clear reg according X CLRGX
     \ -1 size?
     \ 0...N-1 register access
+    \
+
+\ addr N -7 -7
+\ REGSWAP
+-7 =
+IF
+\ D_RPNS
+DROP      \ addrcounter addr N 
+ROT       \ addr N addrcounter 
+    CRRV  \ addr N sss ddd nnn
+    \
+    \ test sss+nnn-1 and ddd+nnn-1 < N
+    DUP   \ addr N sss ddd nnn nnn
+    4 PICK
+    +
+    1-  
+    5 PICK \ addr N sss ddd nnn nnn+sss-1 N
+    <
+    IF
+    DUP   \ addr N sss ddd nnn nnn
+    3 PICK
+    +
+    1-
+    5 PICK  \ addr N sss ddd nnn ddd+nnn-1 N 
+	<
+	IF  \ addr N sss ddd nnn     tested register area fine
+	    
+    0 DO  \ addr N sss ddd
+
+	2 PICK
+	I
+	+  \ addr N sss ddd sss+I
+	1 CELLS 8 = IF 8 ELSE 16 THEN   \ addr N sss ddd S-POS cells
+	*         \ addr N sss ddd (cells * S-POS )
+	5 PICK +  \ addr N sss ddd addr-S
 \
-\ addr N -4 -4
+	2 PICK
+	I
+	+  \ addr N sss ddd addr-S ddd+I
+	1 CELLS 8 = IF 8 ELSE 16 THEN
+	*         \ addr N sss ddd addr-S (cells*D-POS)
+	6 PICK +   \ addr N sss ddd addr-S addr-D
+	<F>
+    LOOP 2DROP 2DROP
+
+ELSE   \ addr N sss ddd nnn 
+  CR ." DEST REG OUTSIDE REGISTER 0.." 2DROP DROP 1- . DROP 	ABORT
+THEN
+
+ELSE   \ addr N sss ddd nnn
+  CR ." START REG OUTSIDE REGISTER 0.." 2DROP DROP 1- . DROP 	ABORT
+THEN 
+\
+ELSE DUP
+\
+\ INDN addr N -8 -8
+
+    \ IND
+-8 =
+IF
+\    D_RPNS
+    DROP       \ INDN addr N    
+    ROT        \ addr N INDN
+    DUP
+    3 PICK     \ addr N INDN INDN N
+\
+    < IF       \ addr N INDN 
+\    
+    3 PICK     \ addr N INDN addr
+    SWAP       \ addr N addr INDN
+    1 CELLS 8 = IF 8 ELSE 16 THEN \ 8 debian 64bits; 16 HP71B
+    *
+    +          \  addr N addr+(cells)
+    FVIP       \  addr N Nnew
+    SWAP       \  addr Nnew N
+    DROP       \  addr Nnew
+    1 CELLS 8 = IF 8 ELSE 16 THEN \ 8 debian 64bits; 16 HP71B
+    *
+    +          \  addr+(cells)
+\	    D_RPNS
+\
+ELSE
+  CR ." IND REG OUTSIDE REGISTER 0.." DROP 1- . DROP 	ABORT
+    THEN
+
+    
+ELSE DUP
+\
+    
+\ addr N -6 -6
+\ REGMOVE
+-6 =
+IF
+\ D_RPNS
+DROP      \ addrcounter addr N 
+ROT       \ addr N addrcounter 
+    CRRV  \ addr N sss ddd nnn
+    \
+    \ test sss+nnn-1 and ddd+nnn-1 < N
+    DUP   \ addr N sss ddd nnn nnn
+    4 PICK
+    +
+    1-  
+    5 PICK \ addr N sss ddd nnn nnn+sss-1 N
+    <
+    IF
+    DUP   \ addr N sss ddd nnn nnn
+    3 PICK
+    +
+    1-
+    5 PICK  \ addr N sss ddd nnn ddd+nnn-1 N 
+	<
+	IF  \ addr N sss ddd nnn     tested register area fine
+	    
+    0 DO  \ addr N sss ddd
+
+	2 PICK
+	I
+	+  \ addr N sss ddd sss+I
+	1 CELLS 8 = IF 8 ELSE 16 THEN   \ addr N sss ddd S-POS cells
+	*         \ addr N sss ddd (cells * S-POS )
+	5 PICK +  \ addr N sss ddd addr-S
+\
+	2 PICK
+	I
+	+  \ addr N sss ddd addr-S ddd+I
+	1 CELLS 8 = IF 8 ELSE 16 THEN
+	*         \ addr N sss ddd addr-S (cells*D-POS)
+	6 PICK +   \ addr N sss ddd addr-S addr-D
+	DFV
+    LOOP  2DROP 2DROP
+
+ELSE   \ addr N sss ddd nnn 
+  CR ." DEST REG OUTSIDE REGISTER 0.." 2DROP DROP 1- . DROP 	ABORT
+THEN
+
+ELSE   \ addr N sss ddd nnn
+  CR ." START REG OUTSIDE REGISTER 0.." 2DROP DROP 1- . DROP 	ABORT
+THEN 
+\
+ELSE DUP
+\
+    \ addr N -4 -4
 \ PRREG
 -4 =
 IF
@@ -211,17 +355,18 @@ UNTIL    \  addr N ii eee POS+ii
 
 
 ELSE  \ addr N ii eee sss
-  CR ." START LOOP OUTSIDE REGISTER 0.." 2DROP DROP 1 - . DROP 
+    CR ." START LOOP OUTSIDE REGISTER 0.." 2DROP DROP 1- . DROP
+    	ABORT
 THEN
 ELSE   \ addr N ii sss eee
-  CR ." END LOOP REGISTER 0.." 2DROP DROP 1 - . DROP 
+  CR ." END LOOP OUTSIDE REGISTER 0.." 2DROP DROP 1- . DROP 	ABORT
 THEN 
 \
 ELSE DUP
 \ addr N -1 -1
 \ SIZE?
 -1 =
-IF DROP CR ." STORAGE SIZE IS: " DUP . ." , REGISTERs ID 0.." 1 - . DROP
+IF DROP CR ." STORAGE SIZE IS: " DUP . ." , REGISTERs ID 0.." 1- . DROP
 \
 ELSE
 \ n-target = Register 0..N-1
@@ -238,29 +383,28 @@ ROT                  \ addr n-target N N n-target
 	    * +     \ addr + ( POS * (*16 hp71b or *8 PC 64bits ) )
 \	    D_RPNS
     ELSE
-	CR ." OVER THE REACHABLE REGISTER 0.." 1 - . CR
+	CR ." OVER THE REACHABLE REGISTER 0.." 1- . CR
 	\ DROP DROP
 	ABORT
     THEN
 \
 \ ENDOF
 \
-THEN THEN THEN THEN
+THEN THEN THEN THEN THEN THEN THEN
 \
 \ D_RPNS
 \   then use STO or  RCL after this word
 ;
 \
 \
-\ CLRG ---------------------------------------------------------
+\ SIZE? --------------------------------------------------------
 \
-\ clear all registers
+\ ask for the register size 
 \ ( -- )
-: CLRG -3 ;
-\ test
-\ 5 REG41 10.0 STO     >>   10.0 into reg 5 of REG41
-\ CLRG REG41           >>   clear all registers of REG41
-\ 5 REG41 RCL FS.      >>   0.0 into X (had 10.0 before)
+: SIZE? -1 ;
+\ use
+\ 33 SIZE REG41     >> define REG41 of size 33 (register 0..32)
+\ SIZE? REG41       >> 33 into integer stack
 \ --------------------------------------------------------------
 \
 \
@@ -275,6 +419,18 @@ THEN THEN THEN THEN
 \ 5 REG41 RCL FS.   >> 10.0 is in X
 \ 5.0 CLRGX REG41   >> clear the reg 5 of REG41
 \ 5 REG41 RCL FS.   >> 0.0 into the stack at X
+\ --------------------------------------------------------------
+\
+\
+\ CLRG ---------------------------------------------------------
+\
+\ clear all registers
+\ ( -- )
+: CLRG -3 ;
+\ test
+\ 5 REG41 10.0 STO     >>   10.0 into reg 5 of REG41
+\ CLRG REG41           >>   clear all registers of REG41
+\ 5 REG41 RCL FS.      >>   0.0 into X (had 10.0 before)
 \ --------------------------------------------------------------
 \
 \
@@ -300,15 +456,35 @@ THEN THEN THEN THEN
 \ 5.01002 PRREGX REG41   >> print the reg content of 05 07 09 
 \ --------------------------------------------------------------
 \
+\ REGMOVE ------------------------------------------------------
 \
-\ SIZE? --------------------------------------------------------
-\
-\ ask for the register size 
+\ move the registers NNN registers from SSS to DDD
 \ ( -- )
-: SIZE? -1 ;
-\ use
-\ 33 SIZE REG41     >> define REG41 of size 33 (register 0..32)
-\ SIZE? REG41       >> 33 into integer stack
+: REGMOVE -6 ;
+\ --------------------------------------------------------------
+\
+\ REGSWAP ------------------------------------------------------
+\
+\ swap the NNN registers from SSS with DDD
+\ ( -- )
+: REGSWAP -7 ;
+\ --------------------------------------------------------------
+\
+\
+\ IND --------------------------------------------------------
+\
+\ indirect to the register according address in integer stack
+\ ( -- )
+: IND -8 ;
+\ test
+\ 10 REG41 0.0 STO      >> 0.0 into reg 10 of REG41
+\ 5 REG41 10.0 STO
+\ 5 IND REG41 11.0 STO  >> 11.0 into reg 10 of REG41
+\ CLST                  >> clear the stack
+\ 5 REG41 RCL FS.       >> 10.0 is in X
+\ PRSTK
+\ 5.0 CLRGX REG41       >> clear the reg 5 of REG41
+\ 10 REG41 RCL FS.      >> 11.0 into the stack at X
 \ --------------------------------------------------------------
 \
 \
@@ -424,10 +600,81 @@ THEN THEN THEN THEN
     CLST FS.
     \
 \ -------------------------------------------------------  
-    CR ." >>>>> 15 REG41 0.0 STO FS. " CR
-    15 REG41 0.0E0 D_SSET STO
-    FS.
+    CR ." >>>>> REGMOVE REG41 " CR
+    0 REG41 0.0E0 STO
+    1 REG41 1.0E0 STO
+    2 REG41 2.0E0 STO
+    3 REG41 3.0E0 STO
+    4 REG41 4.0E0 STO
+    5 REG41 5.0E0 STO
+    6 REG41 6.0E0 STO
+    7 REG41 7.0E0 STO
+    8 REG41 8.0E0 STO
+    9 REG41 9.0E0 STO
+    10 REG41 10.0E0 STO
+    11 REG41 11.0E0 STO
+    12 REG41 12.0E0 STO
+    13 REG41 13.0E0 STO
+        PRREG REG41
+    0.006003E0 D_SSET X REGMOVE REG41
+        PRREG REG41
 \    D_RPNS
+    \
+\ -------------------------------------------------------  
+    CR CR ." >>>>> REGSWAP REG41 " CR
+    0 REG41 0.0E0 STO
+    1 REG41 1.0E0 STO
+    2 REG41 2.0E0 STO
+    3 REG41 3.0E0 STO
+    4 REG41 4.0E0 STO
+    5 REG41 5.0E0 STO
+    6 REG41 6.0E0 STO
+    7 REG41 7.0E0 STO
+    8 REG41 8.0E0 STO
+    9 REG41 9.0E0 STO
+    10 REG41 10.0E0 STO
+    11 REG41 11.0E0 STO
+    12 REG41 12.0E0 STO
+    13 REG41 13.0E0 STO
+        PRREG REG41 CR
+    2.010004E0 D_SSET X REGSWAP REG41
+        PRREG REG41
+\    D_RPNS
+    \
+    \ -------------------------------------------------------
+    \
+    \
+\ -------------------------------------------------------  
+    CR ." >>>>> IND REG41 " CR
+    0 REG41 0.0E0 STO
+    1 REG41 1.0E0 STO
+    2 REG41 2.0E0 STO
+    3 REG41 7.7E0 STO
+    4 REG41 4.0E0 STO
+    5 REG41 5.0E0 STO
+    6 REG41 6.0E0 STO
+    7 REG41 7.0E0 STO
+    8 REG41 8.0E0 STO
+    9 REG41 9.0E0 STO
+    10 REG41 10.0E0 STO
+    11 REG41 11.0E0 STO
+    12 REG41 12.0E0 STO
+    13 REG41 13.0E0 STO
+    3 IND REG41 22222.0E0 STO
+    PRREG REG41
+    CR ." >>>>> in register 7 should see 22222 " CR
+\    D_RPNS
+    \
+\ -------------------------------------------------------  
+
+    
+\ -------------------------------------------------------  
+\
+    \    CR ." >>>>> 15 REG41 0.0 STO FS. " CR
+\    15 REG41 0.0E0 D_SSET STO
+\    FS.
+\
+    \    D_RPNS
     \
     \
     ." ************************************** " CR
